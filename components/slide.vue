@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative w-full h-[80vh] justify-center items-center text-white overflow-hidden group"
+    class="relative w-full h-[85vh] justify-center items-center text-white overflow-hidden group"
   >
     <div
       class="flex transition-transform duration-700 ease-in-out h-full"
@@ -33,7 +33,20 @@
           >
             {{ item.title }}
           </h2>
-          <p class="mt-4 text-shadow-lg/40 drop-shadow-lg/70 text-2xl">
+          <p
+            class="mt-4 text-shadow-lg/40 drop-shadow-lg/100 text-base justify-center flex"
+          >
+            {{
+              item.ageRating +
+              " ● " +
+              (item.tages
+                ? item.tages.map((tag) => tag.name).join(" , ")
+                : "") +
+              " ● " +
+              item.time
+            }}
+          </p>
+          <p class="mt-4 text-shadow-lg/40 drop-shadow-lg/100 text-2xl">
             {{ item.description }}
           </p>
           <div class="justify-self-center space-x-14 mt-10">
@@ -90,29 +103,50 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted, watch } from "vue";
 const items = ref([
   {
     id: 1,
     title: "The Tunnel to Summer, the Exit of Goodbyes (2022)",
+    tages: [
+      { id: 1, name: "Adventure" },
+      { id: 2, name: "Fantasy" },
+      { id: 3, name: "Slice of Life" },
+    ],
+    ageRating: "13+",
+    time: "1h 50m",
     description:
-      "the Greek general Themistocles uniting the city-states to lead the naval charge against the invading Persian forces, commanded by the vengeful Artemisia under the god-king Xerxes.",
+      "lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
     image: "/img/gb.png",
     textPosition: "left",
   },
   {
     id: 2,
     title: "CHANSAW MAN",
+    tages: [
+      { id: 1, name: "Adventure" },
+      { id: 2, name: "Fantasy" },
+      { id: 3, name: "Slice of Life" },
+    ],
+    ageRating: "13+",
+    time: "1h 50m",
     description:
-      "the Greek general Themistocles uniting the city-states to lead the naval charge against the invading Persian forces, commanded by the vengeful Artemisia under the god-king Xerxes.",
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
     image: "/img/chan.png",
     textPosition: "right",
   },
   {
     id: 3,
     title: "Friren: Beyond Journey's End",
+    tages: [
+      { id: 1, name: "Adventure" },
+      { id: 2, name: "Fantasy" },
+      { id: 3, name: "Slice of Life" },
+    ],
+    ageRating: "13+",
+    time: "1h 50m",
     description:
-      "the Greek general Themistocles uniting the city-states to lead the naval charge against the invading Persian forces, commanded by the vengeful Artemisia under the god-king Xerxes.",
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
     image: "/img/fri.png",
     textPosition: "left",
   },
@@ -156,14 +190,17 @@ const goToSlide = (index) => {
   pauseSlider();
 };
 
-onMounted(() => startAutoSlide());
+onMounted(() => {
+  startAutoSlide();
+  window.addEventListener("keydown", handleEsc);
+});
 onUnmounted(() => {
   clearInterval(interval);
   clearTimeout(timeout);
+  window.removeEventListener("keydown", handleEsc);
 });
 
-
-import PopupM from '~/components/PopupM.vue';
+import PopupM from "~/components/PopupM.vue";
 
 const showPopup = ref(false);
 const selectedMovie = ref(null);
@@ -171,6 +208,14 @@ const selectedMovie = ref(null);
 const openPopup = (movie) => {
   selectedMovie.value = movie;
   showPopup.value = true;
+};
+
+watch(showPopup, (val) => {
+  document.body.style.overflow = val ? "hidden" : "";
+});
+
+const handleEsc = (e) => {
+  if (e.key === "Escape") showPopup.value = false;
 };
 </script>
 

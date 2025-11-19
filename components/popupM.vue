@@ -1,23 +1,29 @@
 <template>
-  <transition name="fade" duration="500">
+  <transition
+    name="popup-fade"
+    appear
+    enter-active-class="duration-300 ease-out"
+    leave-active-class="duration-200 ease-in"
+  >
     <div
       v-if="true"
-      class="fixed inset-0 flex items-center justify-center z-50 border-2 border-white min-h-screen "
+      class="fixed inset-0 flex items-center justify-center z-50 min-h-screen bg-black/50 backdrop-blur-sm"
     >
       <div
-        class="bg-black rounded-lg w-[60%] h-[85%] mt-20 overflow-y-auto items-center justify-center grid grid-cols-4 border"
+        class="rounded-2xl w-[60%] h-[75%] overflow-y-auto grid grid-cols-4 custom-scrollbar"
       >
         <div
-          class="cols-span-1 flex-1 bg-[#000000] p-4 text-white flex flex-col items-center justify-center border"
+          class="col-span-1 bg-[#000000] p-4 text-white flex flex-col items-center justify-start"
         >
           <img
             src="/img/luca.png"
             alt="posterLuca"
-            class="rounded-xl w-[180px] h-[291px] object-cover border-2"
+            class="rounded-xl w-auto h-auto object-cover border-2"
           />
-          <h1 class="mt-5 w-[100px] flex items-center justify-center">
+          <h1 class="p-4 w-full flex items-center justify-center">
             Luca (2021)
           </h1>
+
           <img src="/img/review.png" alt="" class="mt-3" />
           <h2 class="mt-6">Director</h2>
           <img
@@ -34,20 +40,38 @@
           </button>
         </div>
 
-        <div
-          class="w-full h-60 bg-[#0B0A0A] text-white cols-span-3  items-start"
-        >
-          <div class="relative bg-[#0B0A0A] bg-cover border">
+        <div class="bg-[#0B0A0A] text-white col-span-3 h-full flex flex-col">
+          <div class="relative bg-[#0B0A0A] max-h-auto overflow-hidden">
             <img
               src="/img/image.png"
               alt=""
               class="w-full h-full object-cover"
             />
-
+            <button
+              class="absolute top-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full hover:bg-black/70 cursor-pointer"
+              @click="$emit('close')"
+            >
+              <font-awesome-icon
+                icon="fa-solid fa-xmark"
+                class="text-white cursor-pointer"
+              />
+            </button>
             <font-awesome-icon
               icon="fa-solid fa-play"
-              class="w-10 h-[50px] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10"
+              class="text-4xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10"
             />
+          </div>
+          <div
+            class="relative w-full h-auto justify-center items-center text-white overflow-hidden overflow-x-auto custom-scrollbar group"
+          >
+            <div class="flex h-full gap-2 p-3">
+              <div
+                v-for="item in items"
+                :key="item.id"
+                class="flex-shrink-0 w-64 h-32 relative bg-cover bg-top border-2"
+                :style="{ backgroundImage: 'url(' + item.image + ')' }"
+              ></div>
+            </div>
           </div>
           <div class="w-full h-auto p-5">
             <p class="">
@@ -63,13 +87,28 @@
               >
             </p>
             <h2 class="mt-4">Actor :</h2>
-            <div class="flex mt-3 gap-3.5">
+            <div
+              class="flex gap-3.5 overflow-x-auto custom-scrollbar p-4 snap-x snap-start"
+            >
               <imgNameAct
-                v-for="(actor, index) in actors"
+                v-for="(actor, index) in visibleActors"
                 :key="index"
                 :img="actor.profile"
                 :name="actor.name"
               />
+              <div
+                class="flex justify-center items-center ml-4 w-24 flex-shrink-0"
+              >
+                <button
+                  class="hover:bg-gray-600 p-4 rounded-full flex flex-nowrap items-center text-green-500 cursor-pointer"
+                >
+                  <h1>
+                    Sell All<br /><span
+                      ><font-awesome-icon icon="fa-solid fa-arrow-right"
+                    /></span>
+                  </h1>
+                </button>
+              </div>
             </div>
             <div class="flex justify-center">
               <button
@@ -90,12 +129,99 @@
 </template>
 <script setup>
 import imgNameAct from "./imgNameAct.vue";
+import { ref, onMounted, onUnmounted, computed, defineEmits } from "vue";
 
+//จำกัดการแสดงนักแสดง
+const visibleLimit = ref(10);
+const visibleActors = computed(() => actors.slice(0, visibleLimit.value));
 const actors = [
   { name: "Jacob Tremblay", profile: "/img/luca.png" },
   { name: "Jacob Tremblay", profile: "/img/luca.png" },
   { name: "Jacob Tremblay", profile: "/img/luca.png" },
   { name: "Jacob Tremblay", profile: "/img/luca.png" },
   { name: "Jacob Tremblay", profile: "/img/luca.png" },
+  { name: "Jacob Tremblay", profile: "/img/luca.png" },
+  { name: "Jacob Tremblay", profile: "/img/luca.png" },
+  { name: "Jacob Tremblay", profile: "/img/luca.png" },
+  { name: "Jacob Tremblay", profile: "/img/luca.png" },
+  { name: "Jacob Tremblay", profile: "/img/luca.png" },
+  { name: "Jacob Tremblay", profile: "/img/luca.png" },
 ];
+const items = ref([
+  {
+    id: 1,
+    title: "The Tunnel to Summer, the Exit of Goodbyes (2022)",
+    tages: [
+      { id: 1, name: "Adventure" },
+      { id: 2, name: "Fantasy" },
+      { id: 3, name: "Slice of Life" },
+    ],
+    ageRating: "13+",
+    time: "1h 50m",
+    description:
+      "lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    image: "/img/image.png",
+    textPosition: "left",
+  },
+  {
+    id: 2,
+    title: "The Tunnel to Summer, the Exit of Goodbyes (2022)",
+    tages: [
+      { id: 1, name: "Adventure" },
+      { id: 2, name: "Fantasy" },
+      { id: 3, name: "Slice of Life" },
+    ],
+    ageRating: "13+",
+    time: "1h 50m",
+    description:
+      "lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    image: "/img/gb.png",
+    textPosition: "left",
+  },
+  {
+    id: 3,
+    title: "CHANSAW MAN",
+    tages: [
+      { id: 1, name: "Adventure" },
+      { id: 2, name: "Fantasy" },
+      { id: 3, name: "Slice of Life" },
+    ],
+    ageRating: "13+",
+    time: "1h 50m",
+    description:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    image: "/img/chan.png",
+    textPosition: "right",
+  },
+  {
+    id: 4,
+    title: "Friren: Beyond Journey's End",
+    tages: [
+      { id: 1, name: "Adventure" },
+      { id: 2, name: "Fantasy" },
+      { id: 3, name: "Slice of Life" },
+    ],
+    ageRating: "13+",
+    time: "1h 50m",
+    description:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    image: "/img/fri.png",
+    textPosition: "left",
+  },
+]);
+const emit = defineEmits(["close"]);
 </script>
+<style scoped>
+.popup-fade-enter-from {
+  opacity: 0;
+}
+.popup-fade-enter-to {
+  opacity: 1;
+}
+.popup-fade-leave-from {
+  opacity: 1;
+}
+.popup-fade-leave-to {
+  opacity: 0;
+}
+</style>

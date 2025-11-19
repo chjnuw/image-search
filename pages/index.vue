@@ -1,13 +1,12 @@
 <template>
-  <div class="overflow-auto bg-black text-white min-h-screen pb-10">
+  <div>
     <div>
       <Slide />
-      <Navbar />
     </div>
     <PopularM />
     <PopularM />
   </div>
 </template>
-<script></script>
+<script setup></script>
 
 <style></style>

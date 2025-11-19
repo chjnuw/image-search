@@ -1,25 +1,25 @@
 <template>
   <transition name="fade" duration="500">
     <div
-      v-if="true"
+      v-if="showPopup"
       class="fixed inset-0 flex items-center justify-center z-50 border-2 border-white"
     >
       <div
-        class="bg-black rounded-lg p-6 w-[100%] h-[100%] mt-40 overflow-y-auto items-center"
+        class="bg-black rounded-lg p-6 w-[100%] h-[100%] mt-40  items-center"
       >
-        <div class="grid grid-rows-[auto_1fr] grid-cols-3 gap-4 p-4">
+        <div class="grid grid-rows-[auto_1fr] grid-cols-3  p-4">
           <div class="col-span-3 border h-auto p-4 gap-2">
             <p class="text-white text-center font-bold">
               <span
                 v-for="id in selected"
                 :key="id"
-                class="bg-green-500 text-white px-4 py-2 rounded-full font-bold gap-2"
+                class="bg-green-500 text-white px-4 py-2 rounded-full font-bold "
               >
                 {{ tags.find((t) => t.id === id).name }}
               </span>
             </p>
           </div>
-          <div class="col-span-1 border p-4 flex flex-wrap gap-2 text-lg">
+          <div class="col-span-1 border p-4 flex flex-wrap  text-lg bg-[#000000]">
             <button
               v-for="item in tags"
               :key="item.id"
@@ -43,7 +43,7 @@
               />
             </button>
           </div>
-          <div class="col-span-2 border">03</div>
+          <div class="col-span-2 border bg-[#0B0A0A] overflow-y-auto">03</div>
         </div>
       </div>
     </div>

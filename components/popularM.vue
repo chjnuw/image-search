@@ -92,20 +92,5 @@ const items = [
 </script>
 
 <style>
-.custom-scrollbar::-webkit-scrollbar {
-  height: 8px; /* ความสูง scrollbar */
-}
 
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent; /* สี track (bg-gray-200) */
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #505050; /* สี thumb (bg-gray-400) */
-  border-radius: 8px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background-color: #818181; /* สี hover */
-}
 </style>
