@@ -85,12 +85,6 @@
               <p class="text-sm">Enrico Casarosa</p>
             </div>
           </div>
-          <button
-            class="w-[100px] h-[35px] bg-[#90CB38] flex items-center justify-center gap-2 rounded-sm px-2 mt-3 mb-2 cursor-pointer hover:bg-[#ffffff]/65"
-          >
-            <img src="/img/iconPlay.png" alt="" class="w-[15px] h-5" />
-            <span class="text-white">PLAY</span>
-          </button>
         </div>
 
         <div
@@ -136,16 +130,22 @@
               </div>
             </div>
           </div>
-          <div class="w-[95%] h-auto text-white">
-            <div class="p-2 flex w-full">
+          <div class="w-[95%] h-auto text-white ">
+            <div class="p-2 flex w-full gap-3">
               <button
                 class="w-[115px] h-[35px] bg-[#ffffff]/65 flex items-center justify-center gap-2 rounded-sm p-4 mt-3 cursor-pointer hover:bg-[#90CB38]"
               >
                 <FontAwesomeIcon
                   icon="fa-solid fa-heart"
-                  class="w-[22px] h-[22px] inline-block"
+                  class="w-[24px] h-[24px] inline-block"
                 />
                 <span class="text-white">Favorite</span>
+              </button>
+              <button
+                class="w-[115px] h-[35px] bg-[#90CB38] flex items-center justify-center gap-2 rounded-sm p-4 mt-3 mb-2 cursor-pointer hover:bg-[#ffffff]/65"
+              >
+                <Icon icon="mdi:play" class="w-6 h-6" />
+                <span class="text-white">PLAY</span>
               </button>
             </div>
             <p class="mt-2 text-2xl font-bold">Overview</p>
@@ -230,6 +230,7 @@
   </transition>
 </template>
 <script setup>
+import { Icon } from "@iconify/vue";
 import imgNameAct from "./imgNameAct.vue";
 import { ref, onMounted, onUnmounted, computed } from "vue";
 const props = defineProps({
