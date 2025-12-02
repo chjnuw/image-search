@@ -7,4 +7,9 @@ export default defineNuxtConfig({
   vite: {
     plugins: [tailwindcss()],
   },
+  runtimeConfig: {
+    public: {
+      TMDB_API_KEY: process.env.TMDB_API_KEY,
+    },
+  },
 });

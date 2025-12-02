@@ -59,7 +59,7 @@
               }}<span class="px-2">●</span></span
             >
           </p>
-          <p class="mt-4 text-shadow-lg/40 drop-shadow-lg/100 text-2xl">
+          <p class="mt-4 text-shadow-lg/40 drop-shadow-lg/100 text-2xl indent-8">
             {{ item.description }}
           </p>
           <div class="justify-self-center space-x-14 mt-10">

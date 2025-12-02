@@ -130,26 +130,31 @@
               </div>
             </div>
           </div>
-          <div class="w-[95%] h-auto text-white ">
+          <div class="w-[95%] h-auto text-white">
             <div class="p-2 flex w-full gap-3">
               <button
-                class="w-[115px] h-[35px] bg-[#ffffff]/65 flex items-center justify-center gap-2 rounded-sm p-4 mt-3 cursor-pointer hover:bg-[#90CB38]"
+                class="w-28 h-9 bg-[#ffffff]/65 flex items-center justify-center gap-2 rounded-sm p-4 mt-3 cursor-pointer hover:bg-[#90CB38]"
               >
                 <FontAwesomeIcon
                   icon="fa-solid fa-heart"
-                  class="w-[24px] h-[24px] inline-block"
+                  class="w-6 h-6 inline-block"
                 />
                 <span class="text-white">Favorite</span>
               </button>
               <button
-                class="w-[115px] h-[35px] bg-[#90CB38] flex items-center justify-center gap-2 rounded-sm p-4 mt-3 mb-2 cursor-pointer hover:bg-[#ffffff]/65"
+                class="w-28 h-9 bg-[#90CB38] flex items-center justify-center gap-2 rounded-sm p-4 mt-3 mb-2 cursor-pointer hover:bg-[#ffffff]/65"
               >
-                <Icon icon="mdi:play" class="w-6 h-6" />
-                <span class="text-white">PLAY</span>
+                <Icon
+                  icon="famicons:play"
+                  width="24"
+                  height="24"
+                  class="text-white flex-shrink-0 inline-block"
+                />
+                <span class="text-white">Play</span>
               </button>
             </div>
             <p class="mt-2 text-2xl font-bold">Overview</p>
-            <p class="p-2">
+            <p class="p-2 indent-8">
               Luca’s summer adventure follows a young sea monster who disguises
               himself as a human. He forms a strong friendship with Alberto, and
               together they try to keep their true identities a secret while
@@ -170,8 +175,8 @@
 
             <div class="flex gap-3.5 overflow-x-auto custom-scrollbar p-4">
               <imgNameAct
-                v-for="(actor, index) in visibleActors"
-                :key="index"
+                v-for="actor  in actors"
+                :key="actor.id"
                 :img="actor.profile"
                 :name="actor.name"
               />
@@ -198,8 +203,8 @@
 
             <div class="flex gap-3.5 overflow-x-auto custom-scrollbar p-4">
               <imgNameAct
-                v-for="(actor, index) in visibleActors"
-                :key="index"
+                v-for="actor  in actors"
+                :key="actor.id"
                 :img="actor.profile"
                 :name="actor.name"
               />
@@ -233,6 +238,7 @@
 import { Icon } from "@iconify/vue";
 import imgNameAct from "./imgNameAct.vue";
 import { ref, onMounted, onUnmounted, computed } from "vue";
+import { mockdata } from "~/composables/mockdata";
 const props = defineProps({
   selectedId: [String, Number],
 });
@@ -240,20 +246,9 @@ const props = defineProps({
 //จำกัดการแสดงนักแสดง
 const visibleLimit = ref(10);
 const visibleActors = computed(() => actors.slice(0, visibleLimit.value));
-const actors = [
-  { name: "Jacob Tremblay", profile: "/img/directorex..png" },
-  { name: "Jacob Tremblay", profile: "/img/directorex..png" },
-  { name: "Jacob Tremblay", profile: "/img/directorex..png" },
-  { name: "Jacob Tremblay", profile: "/img/directorex..png" },
-  { name: "Jacob Tremblay", profile: "/img/directorex..png" },
-  { name: "Jacob Tremblay", profile: "/img/directorex..png" },
-  { name: "Jacob Tremblay", profile: "/img/directorex..png" },
-  { name: "Jacob Tremblay", profile: "/img/directorex..png" },
-  { name: "Jacob Tremblay", profile: "/img/directorex..png" },
-];
 
 const emit = defineEmits(["close"]);
-const { items } = mockdata();
+const { items, actors  } = mockdata();
 const selectedItem = ref(
   items.value.find((i) => i.id == props.selectedId) || items.value[0]
 );

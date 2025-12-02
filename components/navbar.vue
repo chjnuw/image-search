@@ -21,16 +21,21 @@
             class="hover:cursor-pointer hover:text-[#a0e13e] duration-300"
             :class="{ 'text-[#a0e13e]': $route.path === '/' }"
           >
-            HOME
+            <NuxtLink to="/" reload> HOME </NuxtLink>
           </li>
-          <li class="hover:cursor-pointer hover:text-[#a0e13e] duration-300">
-            CATERGORY
+          <li
+            class="hover:cursor-pointer hover:text-[#a0e13e] duration-300"
+            :class="{ 'text-[#a0e13e]': $route.path === '/catagory' }"
+          >
+            <NuxtLink to="/catagory" reload> CATERGORY </NuxtLink>
           </li>
-          <li class="hover:cursor-pointer hover:text-[#a0e13e] duration-300">
-            FAVORITE
+          <li class="hover:cursor-pointer hover:text-[#a0e13e] duration-300"
+           :class="{ 'text-[#a0e13e]': $route.path === '/favoritescreen' }">
+            <NuxtLink to="/favoritescreen" reload> FAVORITE </NuxtLink>
           </li>
-          <li class="hover:cursor-pointer hover:text-[#a0e13e] duration-300">
-            ACTOR
+          <li class="hover:cursor-pointer hover:text-[#a0e13e] duration-300"
+           :class="{ 'text-[#a0e13e]': $route.path === '/actor' }">
+            <NuxtLink to="/actor" reload> ACTOR </NuxtLink>
           </li>
         </div>
       </div>
@@ -70,10 +75,18 @@ const route = useRoute();
 const navState = ref("black"); // "transparent" | "hidden" | "black"
 let lastScroll = 0;
 
+watch(
+  () => route.path,
+  (newPath) => {
+    if (newPath === "/") {
+      navState.value = "transparent"; // หน้าแรกต้องโปร่งก่อน
+    } else {
+      navState.value = "black"; // หน้าอื่นเริ่มสีดำเลย
+    }
+  },
+  { immediate: true } // ให้เช็คทันทีตอน render ครั้งแรก
+);
 
-if (route.path === "/") {
-  navState.value = "transparent";
-}
 const handleScroll = () => {
   const currentScroll = window.scrollY;
 
