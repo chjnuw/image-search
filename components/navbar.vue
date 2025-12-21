@@ -29,28 +29,26 @@
           >
             <NuxtLink to="/catagory" reload> CATERGORY </NuxtLink>
           </li>
-          <li class="hover:cursor-pointer hover:text-[#a0e13e] duration-300"
-           :class="{ 'text-[#a0e13e]': $route.path === '/favoritescreen' }">
+          <li
+            class="hover:cursor-pointer hover:text-[#a0e13e] duration-300"
+            :class="{ 'text-[#a0e13e]': $route.path === '/favoritescreen' }"
+          >
             <NuxtLink to="/favoritescreen" reload> FAVORITE </NuxtLink>
           </li>
-          <li class="hover:cursor-pointer hover:text-[#a0e13e] duration-300"
-           :class="{ 'text-[#a0e13e]': $route.path === '/actor' }">
+          <li
+            class="hover:cursor-pointer hover:text-[#a0e13e] duration-300"
+            :class="{ 'text-[#a0e13e]': $route.path === '/actor' }"
+          >
             <NuxtLink to="/actor" reload> ACTOR </NuxtLink>
           </li>
         </div>
       </div>
       <div class="flex justify-center gap-4 items-center">
-        <div class="hidden lg:flex relative">
-          <input
-            type="text"
-            placeholder="Search..."
-            class="pl-4 pr-10 py-1 border rounded-lg"
-            @click="openpopup"
-          />
+        <div class="hidden lg:flex">
           <span
             ><FontAwesomeIcon
               icon="fa-solid fa-magnifying-glass"
-              class="absolute right-3 top-1/2 -translate-y-1/2"
+              class="text-2xl cursor-pointer"
           /></span>
         </div>
 

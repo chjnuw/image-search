@@ -4,17 +4,20 @@
       <Slide />
     </section>
 
-    <section class="snap-start">
-      <PopularM />
+    <section class="my-20">
+      <div class="snap-start">
+        <PopularM class="" />
+      </div>
+
+      <div class="snap-start">
+        <PopularM />
+      </div>
+
+      <div class="snap-start">
+        <PopularM />
+      </div>
     </section>
 
-    <section class="snap-start">
-      <PopularM />
-    </section>
-
-    <section class="snap-start">
-      <PopularM />
-    </section>
   </div>
 </template>
 <script setup></script>

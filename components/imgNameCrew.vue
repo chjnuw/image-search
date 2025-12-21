@@ -8,7 +8,7 @@
 
     <div class="w-full h-auto text-black p-2 rounded-b-2xl text-left ">
       <h2 class="text-sm font-bold">{{ name }}</h2>
-      <p class="text-xs">AS {{ character }}</p>
+      <p class="text-xs">{{ job }}</p>
     </div>
   </div>
 </template>
@@ -17,6 +17,6 @@
 defineProps({
   img: String,
   name: String,
-  character: String,
+  job: String,
 });
 </script>

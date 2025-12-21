@@ -5,14 +5,18 @@
       <div class="flex-1 border-b-2"></div>
     </div>
     <div
-      class="gap-4 py-6 px-4 snap-x snap-mandatory flex overflow-x-auto custom-scrollbar"
+      class="gap-4 py-6 px-4 flex overflow-x-auto custom-scrollbar"
     >
       <div
-        v-for="item in items"
-        :key="item.id"
-        class="hover:scale-110 transition-transform duration-300 cursor-pointer overflow-hidden w-auto h-64 snap-center"
-      >
-        <img :src="item.poster" class="max-w-full max-h-full object-contain border" />
+        v-for="movie in movies"
+        :key="movie.id"
+        :movie="movie"
+        class="hover:scale-110 transition-transform duration-300 cursor-pointer overflow-hidden flex-shrink-0"   >
+        <img
+          :src="'https://image.tmdb.org/t/p/w500' + movie.poster_path"
+          :alt="movie.title"
+          class="aspect-[2/3] w-40 object-contain rounded"
+        />
       </div>
       <div class="flex justify-center items-center ml-4 w-32 flex-shrink-0">
         <button
@@ -20,7 +24,7 @@
         >
           <h1 class="text-center text-sm sm:text-base">
             Sell All<br /><span
-              ><FontAwesomeIcon  icon="fa-solid fa-arrow-right"
+              ><FontAwesomeIcon icon="fa-solid fa-arrow-right"
             /></span>
           </h1>
         </button>
@@ -29,10 +33,19 @@
   </div>
 </template>
 
-<script setup>
-import { mockdata } from "~/composables/mockdata";
-const { items } = mockdata();
 
+<script setup lang="ts">
+import { ref, onMounted } from "vue";
+import type { Movie } from "../Type/tmdb";
+import { useTMDB } from "../composables/useTMDB";
+
+const { getPopularMovies } = useTMDB();
+const movies = ref<Array<Movie>>([]);
+
+onMounted(async () => {
+  const res = await getPopularMovies();
+  movies.value = res?.results ?? [];
+});
 </script>
 
 <style></style>
