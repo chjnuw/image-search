@@ -14,8 +14,9 @@
                         <path fill="currentColor" fill-rule="evenodd"
                             d="M256 42.667A213.333 213.333 0 0 1 469.334 256c0 117.821-95.513 213.334-213.334 213.334c-117.82 0-213.333-95.513-213.333-213.334C42.667 138.18 138.18 42.667 256 42.667m21.334 234.667h-42.667c-52.815 0-98.158 31.987-117.715 77.648c30.944 43.391 81.692 71.685 139.048 71.685s108.104-28.294 139.049-71.688c-19.557-45.658-64.9-77.645-117.715-77.645M256 106.667c-35.346 0-64 28.654-64 64s28.654 64 64 64s64-28.654 64-64s-28.653-64-64-64" />
                     </svg>
-                    <input type="text" placeholder="Name"
+                    <input type="text" placeholder="Name" v-model="form.name"
                         class="flex-1 p-3 bg-transparent focus:outline-none text-[#ffffff] font-extrabold text-shadow-2xl" />
+
                 </div>
                 <div
                     class="w-[500px] h-[50px] flex items-center bg-white/50 backdrop-blur-md border border-gray-300 rounded-4xl px-3">
@@ -23,18 +24,20 @@
                         class="ml-2.5 text-[#737373]">
                         <path fill="currentColor" fill-rule="evenodd"
                             d="m7.172 11.334l2.83 1.935l2.728-1.882l6.115 6.033q-.242.079-.512.08H1.667c-.22 0-.43-.043-.623-.12zM20 6.376v9.457c0 .247-.054.481-.15.692l-5.994-5.914zM0 6.429l6.042 4.132l-5.936 5.858A1.7 1.7 0 0 1 0 15.833zM18.333 2.5c.92 0 1.667.746 1.667 1.667v.586L9.998 11.648L0 4.81v-.643C0 3.247.746 2.5 1.667 2.5z" />
-                    </svg> <input type="text" placeholder="Email"
+                    </svg>
+                    <input type="text" placeholder="Email" v-model="form.email"
                         class="flex-1 p-3 bg-transparent focus:outline-none text-[#ffffff] font-extrabold text-shadow-2xl" />
                 </div>
 
                 <div @click=gendercheck class="flex  text-white w-[500px] h-auto gap-[100px] ml-6">
                     <label class="flex items-center gap-2 font-bold">
-                        <input type="radio" name="gender" value="male" class="accent-[#90CB38] font-bold w-5 h-5">
-                        Male
+                        <input type="radio" name="gender" value="1" v-model="form.gender"
+                            class="accent-[#90CB38] w-5 h-5"> Male
                     </label>
 
                     <label @click=gendercheck class="flex items-center gap-2 font-bold">
-                        <input type="radio" name="gender" value="female" class="accent-[#90CB38] font-bold w-5 h-5">
+                        <input type="radio" name="gender" value="2" v-model="form.gender"
+                            class="accent-[#90CB38] w-5 h-5">
                         Female
                     </label>
                 </div>
@@ -52,8 +55,9 @@
                                 d="M208 80h-32V56a48 48 0 0 0-96 0v24H48a16 16 0 0 0-16 16v112a16 16 0 0 0 16 16h160a16 16 0 0 0 16-16V96a16 16 0 0 0-16-16m-72 78.63V184a8 8 0 0 1-16 0v-25.37a24 24 0 1 1 16 0M160 80H96V56a32 32 0 0 1 64 0Z" />
                         </svg>
 
-                        <input :type="showPassword ? 'text' : 'password'" placeholder="Password"
+                        <input :type="showPassword ? 'text' : 'password'" placeholder="Password" v-model="form.password"
                             class="bg-transparent focus:outline-none text-white font-bold" />
+
                     </div>
 
                     <!-- ไอคอนตา toggle -->
@@ -78,9 +82,19 @@
 
                 </div>
 
-                <button 
-                    class="w-[500px] h-[45px] bg-[#A0E13E] text-[#ffffff] text-shadow-4xl rounded-[70px] font-bold shadow-2xl cursor-pointer hover:bg-[#80b432]"
-                    style="text-shadow: 0px 0px 8px rgba(0,0,0,0.5);" @click="gototag">Continue</button>
+               <button
+  type="button"
+  :disabled="loading"
+  class="w-[500px] h-[45px] bg-[#A0E13E] text-white rounded-[70px]
+         font-bold shadow-2xl cursor-pointer
+         disabled:opacity-50 disabled:cursor-not-allowed"
+  @click="gototag"
+>
+  {{ loading ? 'Loading...' : 'Continue' }}
+</button>
+
+
+
                 <div class="flex gap-4">
                     <p class="text-[#ffffff] text-shadow-2xl">You Haven’t any account?</p> <span
                         class="text-[#A0E13E] cursor-pointer ">Sign Up</span>
@@ -96,23 +110,57 @@
 </template>
 
 <script setup>
-definePageMeta({ layout: "login" });
-import { ref } from 'vue';
-const gotologin = () => {
-    navigateTo('/logInscreen')
-}
-const showPassword = ref(false);
+definePageMeta({ layout: "login" })
 
+
+import { ref } from 'vue'
+
+const showPassword = ref(false)
 const togglePassword = () => {
-    showPassword.value = !showPassword.value;
-};
-
-const gototag = () => {
-    navigateTo('/tagRegis')
+    showPassword.value = !showPassword.value
 }
-const checked = ref(true)
 
-const gendercheck = ref("")
+// ฟอร์ม register
+const form = ref({
+    name: '',
+    email: '',
+    password: '',
+    gender: ''
+})
+
+const loading = ref(false)
+const errorMsg = ref('')
+
+// กด Continue
+const gototag = async () => {
+  if (loading.value) return
+  loading.value = true
+
+  try {
+    const res = await $fetch('/api/register', {
+      method: 'POST',
+      body: form.value
+    })
+
+    console.log('REGISTER RES =', res)
+
+    // ✅ ถ้าได้ userId = ถือว่าสมัครสำเร็จ
+    if (res.userId) {
+      navigateTo(`/tagRegis?userId=${res.userId}`)
+      return
+    }
+
+    alert(res.message || 'Register failed')
+  } catch (err) {
+    console.error(err)
+    alert('API error')
+  } finally {
+    loading.value = false
+  }
+}
+
+
 </script>
+
 
 <style></style>

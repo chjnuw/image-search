@@ -3,7 +3,7 @@
     :class="[
       'fixed top-0 left-0 w-full z-50 transition-all duration-300',
       navState === 'transparent'
-        ? 'bg-gradient-to-t from-transparent to-black/70 translate-y-0 p-6 text-white'
+        ? 'bg-linear-to-t from-transparent to-black/70 translate-y-0 p-6 text-white'
         : navState === 'hidden'
         ? '-translate-y-full p-0'
         : 'bg-black/100 translate-y-0 p-6 text-white',

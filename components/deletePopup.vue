@@ -32,8 +32,14 @@
   </div>
 </template>
 <script setup>
+const handledelete = async () => {
+  await $fetch('/api/account', {
+    method: 'DELETE',
+    credentials: 'include'
+  })
 
-const handledelete = () => {
-    navigateTo('/logInscreen')
+  navigateTo('/logInscreen')
 }
 </script>
+
+

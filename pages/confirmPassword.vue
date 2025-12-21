@@ -87,9 +87,24 @@
 <script setup>
 definePageMeta({ layout: "login" });
 import { ref } from 'vue';
+const password = ref('')
+const confirm = ref('')
 
-const handleGotologin = () => {
-    navigateTo('/logInscreen')
+const handleGotologin = async () => {
+  if (password.value !== confirm.value) {
+    alert('Password not match')
+    return
+  }
+
+  await $fetch('/api/auth/reset-password', {
+    method: 'POST',
+    body: {
+      email: useState('resetEmail').value,
+      password: password.value
+    }
+  })
+
+  navigateTo('/logInscreen')
 }
 const checked = ref(true)
 

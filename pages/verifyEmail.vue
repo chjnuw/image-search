@@ -32,10 +32,19 @@
 <script setup>
 definePageMeta({ layout: "login" });
 import { ref } from 'vue';
+const otpCode = computed(() => otp.value.join(''))
 
 const checked = ref(true)
-const handleconfirmpassword = () => {
-    navigateTo('/confirmPassword')
+const handleconfirmpassword = async () => {
+  await $fetch('/api/auth/verify-otp', {
+    method: 'POST',
+    body: {
+      email: useState('resetEmail').value,
+      otp: otpCode.value
+    }
+  })
+
+  navigateTo('/confirmPassword')
 }
 
 const otp = ref(["", "", "", "", ""]);

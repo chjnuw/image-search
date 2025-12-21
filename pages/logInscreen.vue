@@ -13,8 +13,13 @@
                         class="ml-2.5 text-[#737373]">
                         <path fill="currentColor" fill-rule="evenodd"
                             d="m7.172 11.334l2.83 1.935l2.728-1.882l6.115 6.033q-.242.079-.512.08H1.667c-.22 0-.43-.043-.623-.12zM20 6.376v9.457c0 .247-.054.481-.15.692l-5.994-5.914zM0 6.429l6.042 4.132l-5.936 5.858A1.7 1.7 0 0 1 0 15.833zM18.333 2.5c.92 0 1.667.746 1.667 1.667v.586L9.998 11.648L0 4.81v-.643C0 3.247.746 2.5 1.667 2.5z" />
-                    </svg> <input type="text" placeholder="Email"
-                        class="flex-1 p-3 bg-transparent focus:outline-none text-[#ffffff] font-extrabold text-shadow-2xl" />
+                    </svg><input
+  type="text"
+  placeholder="Email"
+  v-model="form.email"
+  class="flex-1 p-3 bg-transparent focus:outline-none text-[#ffffff] font-extrabold text-shadow-2xl"
+/>
+
                 </div>
                 <div
                     class="w-[500px] h-[50px] flex items-center bg-white/55 backdrop-blur-md border border-gray-300 rounded-4xl px-3 text-[#ffffff] font-extrabold text-shadow-2xl justify-between">
@@ -27,8 +32,13 @@
                                 d="M208 80h-32V56a48 48 0 0 0-96 0v24H48a16 16 0 0 0-16 16v112a16 16 0 0 0 16 16h160a16 16 0 0 0 16-16V96a16 16 0 0 0-16-16m-72 78.63V184a8 8 0 0 1-16 0v-25.37a24 24 0 1 1 16 0M160 80H96V56a32 32 0 0 1 64 0Z" />
                         </svg>
 
-                        <input :type="showPassword ? 'text' : 'password'" placeholder="Password"
-                            class="bg-transparent focus:outline-none text-white font-bold" />
+                        <input
+  :type="showPassword ? 'text' : 'password'"
+  placeholder="Password"
+  v-model="form.password"
+  class="bg-transparent focus:outline-none text-white font-bold"
+/>
+
                     </div>
 
                     <!-- ไอคอนตา toggle -->
@@ -80,10 +90,14 @@
                 <button
                     class="w-[500px] h-[45px] bg-[#A0E13E] text-[#ffffff] text-shadow-2xl rounded-[70px] font-bold shadow-2xl cursor-pointer hover:bg-[#80b432]"
                     @click="handleToHomepage">Log In</button>
+                    
+
                 <div class="flex gap-4">
                     <p class="text-[#ffffff] text-shadow-2xl">You Haven’t any account?</p> <span
                         class="text-[#A0E13E] cursor-pointer  " @click="handleRegister">Register</span>
-
+<p v-if="errorMsg" class="text-red-500">
+  {{ errorMsg }}
+</p>
                 </div>
 
 
@@ -96,26 +110,55 @@
 
 <script setup>
 definePageMeta({ layout: "login" });
-import { ref } from 'vue';
+
+import { ref } from 'vue'
 
 const checked = ref(true)
-const handleRegister = () => {
-    navigateTo('/registerscreen')
-}
-const handlepassword = () => {
-    navigateTo('/password')
-}
+const showPassword = ref(false)
+const errorMsg = ref('')
 
-const handleToHomepage = () => {
-    navigateTo('/')
-}
-
-const showPassword = ref(false);
+// 🔹 ฟอร์มล็อกอิน
+const form = ref({
+  email: '',
+  password: ''
+})
 
 const togglePassword = () => {
-    showPassword.value = !showPassword.value;
-};
+  showPassword.value = !showPassword.value
+}
 
+const handleRegister = () => {
+  navigateTo('/registerscreen')
+}
+
+const handlepassword = () => {
+  navigateTo('/password')
+}
+
+//  ตัวล็อกอินจริง
+const handleToHomepage = async () => {
+  errorMsg.value = ''
+
+  try {
+    const res = await $fetch('/api/login', {
+      method: 'POST',
+      body: form.value
+    })
+
+    if (res.ok) {
+      // เก็บ user (ชั่วคราว)
+      localStorage.setItem('user', JSON.stringify(res.user))
+
+      // ไปหน้าโปรไฟล์ หรือหน้าแรก
+      navigateTo('/profile')
+    } else {
+      errorMsg.value = res.message
+    }
+  } catch (err) {
+    errorMsg.value = 'Server error'
+  }
+}
 </script>
+
 
 <style></style>
