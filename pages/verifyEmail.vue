@@ -30,11 +30,13 @@
 </template>
 
 <script setup>
-definePageMeta({ layout: "login" });
-import { ref } from 'vue';
+definePageMeta({ layout: "login" })
+
+// ❌ ไม่ต้อง import ref / computed ใน Nuxt 3
+
+const otp = ref(["", "", "", "", "", ""]) // 6 ช่อง
 const otpCode = computed(() => otp.value.join(''))
 
-const checked = ref(true)
 const handleconfirmpassword = async () => {
   await $fetch('/api/auth/verify-otp', {
     method: 'POST',
@@ -47,31 +49,18 @@ const handleconfirmpassword = async () => {
   navigateTo('/confirmPassword')
 }
 
-const otp = ref(["", "", "", "", ""]);
-
 const moveNext = (index) => {
-    if (otp.value[index].length === 1 && index < otp.value.length - 1) {
-        const next = document.querySelectorAll("input")[index + 1];
-        next.focus();
-    }
+  if (otp.value[index].length === 1 && index < otp.value.length - 1) {
+    document.querySelectorAll("input")[index + 1]?.focus()
+  }
 }
 
 const movePrev = (index) => {
-    if (otp.value[index] === "" && index > 0) {
-        const prev = document.querySelectorAll("input")[index - 1];
-        prev.focus();
-    }
-};
-
-
-
-
-
-
-
-
-
-
+  if (otp.value[index] === "" && index > 0) {
+    document.querySelectorAll("input")[index - 1]?.focus()
+  }
+}
 </script>
+
 
 <style></style>

@@ -19,8 +19,12 @@
                                 d="M208 80h-32V56a48 48 0 0 0-96 0v24H48a16 16 0 0 0-16 16v112a16 16 0 0 0 16 16h160a16 16 0 0 0 16-16V96a16 16 0 0 0-16-16m-72 78.63V184a8 8 0 0 1-16 0v-25.37a24 24 0 1 1 16 0M160 80H96V56a32 32 0 0 1 64 0Z" />
                         </svg>
 
-                        <input :type="showPassword ? 'text' : 'password'" placeholder="Password"
-                            class="bg-transparent focus:outline-none text-white font-bold" />
+                        <input
+  v-model="password"
+  :type="showPassword ? 'text' : 'password'"
+  placeholder="Password"
+  class="bg-transparent focus:outline-none text-white font-bold"
+/>
                     </div>
 
                     <!-- ไอคอนตา toggle -->
@@ -51,8 +55,12 @@
                                 d="M208 80h-32V56a48 48 0 0 0-96 0v24H48a16 16 0 0 0-16 16v112a16 16 0 0 0 16 16h160a16 16 0 0 0 16-16V96a16 16 0 0 0-16-16m-72 78.63V184a8 8 0 0 1-16 0v-25.37a24 24 0 1 1 16 0M160 80H96V56a32 32 0 0 1 64 0Z" />
                         </svg>
 
-                        <input :type="showConfirmPassword ? 'text' : 'password'" placeholder="Confirm Password"
-                            class="bg-transparent focus:outline-none text-white font-bold" />
+                        <input
+  v-model="confirm"
+  :type="showConfirmPassword ? 'text' : 'password'"
+  placeholder="Confirm Password"
+  class="bg-transparent focus:outline-none text-white font-bold"
+/>
                     </div>
 
                     <!-- ไอคอนตา toggle -->
@@ -74,7 +82,7 @@
                 </div>
                 <button class="w-[500px] h-[45px] bg-[#A0E13E] text-[#ffffff] text-shadow-4xl rounded-[70px] font-bold shadow-2xl cursor-pointer hover:bg-[#80b432]"
                  style="text-shadow: 0px 0px 8px rgba(0,0,0,0.5);"
-                 @click="handleGotologin">Confirm Code </button>
+                 @click="handleGotologin">Confirm Password </button>
 
 
             </div>

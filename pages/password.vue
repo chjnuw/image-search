@@ -23,9 +23,13 @@
 />
 
                 </div>
-                <button
-                    class="w-[500px] h-[45px] bg-[#A0E13E] text-[#ffffff] text-shadow-4xl rounded-[70px] font-bold shadow-2xl cursor-pointer hover:bg-[#80b432]"
-                    style="text-shadow: 0px 0px 8px rgba(0,0,0,0.5);" @click="handleVertify">Send Instructions </button>
+                <button  class="w-[500px] h-[45px] bg-[#A0E13E] text-[#ffffff] text-shadow-4xl rounded-[70px] font-bold shadow-2xl cursor-pointer hover:bg-[#80b432]"
+                 style="text-shadow: 0px 0px 8px rgba(0,0,0,0.5);" @click="handleVertify"
+  :disabled="loading"
+  
+>
+  {{ loading ? 'Sending...' : 'Send Instructions' }}
+</button>
 
 
             </div>
@@ -39,6 +43,8 @@
 definePageMeta({ layout: "login" });
 import { ref } from 'vue';
 const email = ref('')
+const loading = ref(false)
+
 
 const handleVertify = async () => {
   if (!email.value) {
@@ -46,19 +52,24 @@ const handleVertify = async () => {
     return
   }
 
-  // ยิง API
-  await $fetch('/api/auth/forgot-password', {
-    method: 'POST',
-    body: {
-      email: email.value
-    }
-  })
+  if (loading.value) return
+  loading.value = true
 
-  // เก็บ email ไว้ใช้หน้าถัดไป
-  useState('resetEmail').value = email.value
+  try {
+    await $fetch('/api/auth/forgot-password', {
+      method: 'POST',
+      body: { email: email.value }
+    })
 
-  navigateTo('/verifyEmail')
+    useState('resetEmail').value = email.value
+    navigateTo('/verifyEmail')
+  } catch (err) {
+    alert(err?.data?.statusMessage || 'Something went wrong')
+  } finally {
+    loading.value = false
+  }
 }
+
 const checked = ref(true)
 </script>
 
