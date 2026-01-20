@@ -7,6 +7,7 @@
   </main>
 
   <Footer />
+  <GlobalLoading />
 </ClientOnly>
 </template>
 <script setup>

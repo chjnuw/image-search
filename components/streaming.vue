@@ -1,37 +1,56 @@
 <template>
-  <div class="">
-    <p class="font-bold text-xl mb-2 w-full text-start text-white">Streaming Platforms</p>
-    <div class="flex gap-3 flex-wrap p-3">
-      <img
+  <div>
+    <p class="font-bold text-xl mb-2 text-white">
+      บริการสตรีมมิ่ง
+    </p>
+
+    <div class="flex gap-2 flex-wrap p-2">
+      <button
         v-for="prov in providers"
         :key="prov.provider_id"
-        :src="`https://image.tmdb.org/t/p/w92${prov.logo_path}`"
-        class="w-11 h-11 rounded-md bg-white object-contain hover:scale-110 cursor-pointer"
-        :alt="prov.provider_name"
-      />
+        @click="toggle(prov.provider_id)"
+        class="rounded-lg p-2 transition border cursor-pointer"
+        :class="
+          selected.includes(prov.provider_id)
+            ? 'border-green-400 bg-white/10'
+            : 'border-transparent opacity-60 hover:opacity-100'
+        "
+      >
+        <img
+          :src="`https://image.tmdb.org/t/p/w92${prov.logo_path}`"
+          :alt="prov.provider_name"
+          class="h-8 object-contain"
+        />
+      </button>
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useTMDB } from "../composables/useTMDB";
+import type { WatchProvider } from "../Type/tmdb";
 
-interface ProviderResponse {
-  results?: Array<{
-    provider_id: number;
-    logo_path: string;
-    provider_name: string;
-  }>;
-}
+const emit = defineEmits<{
+  (e: "update", value: number[]): void;
+}>();
 
-const providers = ref([]);
+const { getWatchProviders } = useTMDB();
 
-const { getMovieProviders } = useTMDB();
+const providers = ref<WatchProvider[]>([]);
+const selected = ref<number[]>([]);
 
 onMounted(async () => {
-  const res = (await getMovieProviders()) as ProviderResponse;
-
-  // ถ้าไม่มี results ให้เป็น [] เพื่อกัน error
+  const res = await getWatchProviders("TH");
   providers.value = res?.results ?? [];
 });
+
+function toggle(id: number) {
+  if (selected.value.includes(id)) {
+    selected.value = selected.value.filter(p => p !== id);
+  } else {
+    selected.value.push(id);
+  }
+  emit("update", selected.value);
+}
 </script>

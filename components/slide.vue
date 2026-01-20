@@ -31,14 +31,17 @@
           :class="item.loadedHD ? 'opacity-100' : 'opacity-0'"
         />
 
+<!-- ================================================= Gradient overlays ======================================================-->
         <div
-          :class="[
-            'absolute text-white p-4 overflow-hidden',
-            item.textPosition === 'left'
-              ? 'left-[0] text-left w-1/3 inset-0 bg-gradient-to-l from-transparent via-black/70 to-black/100'
-              : 'right-[0] text-right -w-1/3 inset-0 bg-gradient-to-r from-transparent via-black/30 to-black/100',
-          ]"
+          class="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-black/100 to-transparent pointer-events-none"
         ></div>
+        <div
+          class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_40%,rgba(0,0,0,0.6)_100%)] pointer-events-none"
+        ></div>
+        <div
+          class="absolute inset-0 bg-gradient-to-r from-black/70 via-transparent to-black/30 pointer-events-none"
+        ></div>
+<!-- ======================================================================================================================== -->
         <span
           :class="[
             'absolute top-1/2 -translate-y-1/2 text-white p-4 w-1/3 ',
@@ -61,7 +64,7 @@
               {{ item.ageRating }}
             </span>
             <span class="">·</span>
-            <span class="w-auto h-full">{{ item.time }}</span>
+            <span class="w-auto h-full">{{ item.release }}</span>
           </p>
           <p
             class="text-shadow-lg/40 drop-shadow-lg/100 text-base justify-center flex text-center w-full items-center"
@@ -185,8 +188,6 @@ const goToSlide = (index) => {
   pauseSlider();
 };
 
-
-
 const selectedId = ref(null);
 const selectedItem = computed(() =>
   items.find((i) => i.id == selectedId.value)
@@ -261,7 +262,7 @@ onMounted(async () => {
       loadedFull: false,
 
       ageRating: m.adult ? "18+" : "PG-13",
-      time: m.release_date,
+      release: m.release_date,
       tages:
         m.genre_ids?.map((g) => ({ name: genreMap[g] || "Unknown" })) || [],
       textPosition: "left",
@@ -334,7 +335,6 @@ watch(showPopup, (val) => {
     startAutoSlide(); // ปิด popup = กลับมาวิ่ง
   }
 });
-
 
 const handleEsc = (e) => {
   if (e.key === "Escape") showPopup.value = false;

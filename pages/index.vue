@@ -8,14 +8,6 @@
       <div class="snap-start">
         <PopularM class="" />
       </div>
-
-      <div class="snap-start">
-        <PopularM />
-      </div>
-
-      <div class="snap-start">
-        <PopularM />
-      </div>
     </section>
 
   </div>

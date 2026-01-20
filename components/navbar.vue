@@ -16,30 +16,30 @@
         <div class="flex items-center">
           <img src="/img/logo.png" alt="Logo" class="size-30 object-contain" />
         </div>
-        <div class="items-center list-none gap-4 p-4 hidden lg:flex">
+        <div class="items-center list-none gap-4 p-4 hidden text-lg lg:flex">
           <li
             class="hover:cursor-pointer hover:text-[#a0e13e] duration-300"
             :class="{ 'text-[#a0e13e]': $route.path === '/' }"
           >
-            <NuxtLink to="/" reload> HOME </NuxtLink>
+            <NuxtLink to="/" reload> หน้าหลัก </NuxtLink>
           </li>
           <li
             class="hover:cursor-pointer hover:text-[#a0e13e] duration-300"
             :class="{ 'text-[#a0e13e]': $route.path === '/catagory' }"
           >
-            <NuxtLink to="/catagory" reload> CATERGORY </NuxtLink>
-          </li>
-          <li
-            class="hover:cursor-pointer hover:text-[#a0e13e] duration-300"
-            :class="{ 'text-[#a0e13e]': $route.path === '/favoritescreen' }"
-          >
-            <NuxtLink to="/favoritescreen" reload> FAVORITE </NuxtLink>
+            <NuxtLink to="/catagory" reload> หมวดหมู่ </NuxtLink>
           </li>
           <li
             class="hover:cursor-pointer hover:text-[#a0e13e] duration-300"
             :class="{ 'text-[#a0e13e]': $route.path === '/actor' }"
           >
-            <NuxtLink to="/actor" reload> ACTOR </NuxtLink>
+            <NuxtLink to="/actor" reload> นักแสดง </NuxtLink>
+          </li>
+          <li
+            class="hover:cursor-pointer hover:text-[#a0e13e] duration-300"
+            :class="{ 'text-[#a0e13e]': $route.path === '' }"
+          >
+            <NuxtLink to="" reload> สุ่มภาพยนตร์ </NuxtLink>
           </li>
         </div>
       </div>
@@ -49,27 +49,67 @@
             ><FontAwesomeIcon
               icon="fa-solid fa-magnifying-glass"
               class="text-2xl cursor-pointer"
+              @click="openSearch = true"
           /></span>
         </div>
+        <NuxtLink to="/favoritescreen" reload>
+          <FontAwesomeIcon
+            icon="fa-solid fa-heart"
+            class="flex text-3xl cursor-pointer"
+          />
+        </NuxtLink>
 
-        <FontAwesomeIcon
-          icon="fa-solid fa-heart"
-          class="flex text-3xl cursor-pointer"
-        />
-
-        <FontAwesomeIcon
-          icon="fa-regular fa-circle-user"
-          class="flex text-3xl cursor-pointer"
-        />
+        <NuxtLink to="/profile" reload>
+          <FontAwesomeIcon
+            icon="fa-regular fa-circle-user"
+            class="flex text-3xl cursor-pointer"
+          />
+        </NuxtLink>
       </div>
     </div>
   </nav>
+  <transition name="search-fade">
+    <div
+      v-if="openSearch"
+      class="fixed inset-0 z-[999] bg-black/95 backdrop-blur-sm flex flex-col"
+    >
+      <!-- Close -->
+      <button
+        class="absolute top-6 right-6 text-white text-2xl cursor-pointer z-50 text-white/70 hover:text-white transition duration-200"
+        @click="openSearch = false"
+      >
+        ✕
+      </button>
+
+      <!-- Search box -->
+      <div class="mt-40 max-w-2xl mx-auto w-full px-6">
+        <MovieSearch
+          autofocus
+          ref="searchRef"
+          @select="onSelectSearchMovie"
+          @close="openSearch = false"
+        />
+      </div>
+    </div>
+  </transition>
+  <PopupM
+    v-if="showPopup"
+    :selectedId="selectedId"
+    class="z-50"
+    @close="showPopup = false"
+  />
 </template>
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, watch, onMounted, onUnmounted, nextTick } from "vue";
 import { useRoute } from "vue-router";
+import { useGlobalLoading } from "../composables/useGlobalLoading";
 
 const route = useRoute();
+const showPopup = ref(false);
+const selectedId = ref(null);
+const searchRef = ref(null);
+const { start, stop } = useGlobalLoading();
+
 const navState = ref("black"); // "transparent" | "hidden" | "black"
 let lastScroll = 0;
 
@@ -115,11 +155,65 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener("scroll", handleScroll);
 });
+
+const openSearch = ref(false);
+
+const emit = defineEmits(["search-select"]);
+
+const onSelectSearchMovie = async (movie) => {
+  openSearch.value = false;
+  await nextTick();
+  start();
+  selectedId.value = movie.id;
+  showPopup.value = true;
+};
+
+watch(openSearch, (val) => {
+  document.body.style.overflow = val ? "hidden" : "";
+});
+
+const handleEsc = (e) => {
+  if (e.key === "Escape") {
+    if (showPopup.value) showPopup.value = false;
+    else openSearch.value = false;
+  }
+};
+
+onMounted(() => document.addEventListener("keydown", handleEsc));
+onUnmounted(() => document.removeEventListener("keydown", handleEsc));
+
+watch(openSearch, async (val) => {
+  document.body.style.overflow = val ? "hidden" : "";
+
+  if (val) {
+    await nextTick();
+    searchRef.value?.focusInput(); // ⭐ โฟกัสทันที
+  }
+});
 </script>
 
 <style>
 /* optional: เพิ่ม shadow เล็ก ๆ เวลา visible */
 nav {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.search-fade-enter-from {
+  opacity: 0;
+}
+.search-fade-enter-to {
+  opacity: 1;
+}
+.search-fade-enter-active {
+  transition: opacity 0.35s ease;
+}
+
+.search-fade-leave-from {
+  opacity: 1;
+}
+.search-fade-leave-to {
+  opacity: 0;
+}
+.search-fade-leave-active {
+  transition: opacity 0.25s ease;
 }
 </style>

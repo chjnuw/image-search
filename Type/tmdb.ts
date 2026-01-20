@@ -1,7 +1,12 @@
 export interface Movie {
   adult: boolean;
   backdrop_path: string | null;
-  belongs_to_collection: null | object;
+  belongs_to_collection: null | {
+    id: number;
+    name: string;
+    poster_path: string | null;
+    backdrop_path: string | null;
+  };
   budget: number;
   genres: { id: number; name: string }[];
   homepage: string;
@@ -58,7 +63,6 @@ export interface WatchProviderCountry {
 }
 
 export interface WatchProviderResponse {
-  id: number;
   results: Record<string, WatchProviderCountry>;
 }
 
@@ -99,7 +103,7 @@ export interface MovieImagesResponse {
 
 export interface MovieVideo {
   id: string;
-  key: string;          
+  key: string;
   name: string;
   site: "YouTube" | string;
   type: "Trailer" | "Teaser" | string;
@@ -109,4 +113,19 @@ export interface MovieVideo {
 export interface MovieVideoResponse {
   id: number;
   results: MovieVideo[];
+}
+
+export interface ReleaseDateItem {
+  certification: string;
+  type: number;
+}
+
+export interface ReleaseDateResult {
+  iso_3166_1: string;
+  release_dates: ReleaseDateItem[];
+}
+
+export interface MovieReleaseDatesResponse {
+  id: number;
+  results: ReleaseDateResult[];
 }

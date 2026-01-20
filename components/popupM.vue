@@ -9,164 +9,285 @@
       v-if="selectedId && selectedItem"
       class="fixed inset-0 flex items-center justify-center z-50 min-h-screen bg-black/50 backdrop-blur-sm"
     >
-      <div
-        class="rounded-2xl w-[65%] h-[80%] overflow-y-auto grid grid-cols-4 custom-scrollbar"
-      >
+      <transition name="popup-swap" mode="out-in">
+        <MoviePopupSkeleton v-if="isLoading" />
         <div
-          class="col-span-1 bg-[#000000] p-4 text-white flex flex-col items-center"
+          v-else
+          ref="popupScroll"
+          class="rounded-2xl w-[65%] h-[80%] overflow-y-auto overflow-x-hidden grid grid-cols-4 custom-scrollbar"
         >
-          <img
-            :src="selectedItem.poster"
-            loading="lazy"
-            class="rounded-xl aspect-[2/3] w-64 border-2 object-contain"
-          />
-
-          <h1 class="p-2 w-full text-2xl font-bold text-center">
-            {{ selectedItem.title }}
-          </h1>
-
-          <p class="p-2 text-sm flex items-center justify-center gap-2">
-            <span
-              class="px-2 py-1 border border-white/40 bg-white/10 rounded-md text-xs font-bold"
-            >
-              {{ selectedItem.ageRating }}
-            </span>
-            <span>·</span>
-            <span class="text-xs">{{ selectedItem.time }}</span>
-          </p>
-
-          <p class="flex flex-wrap gap-2 p-2 text-xs justify-center">
-            <button
-              v-for="tag in selectedItem.tags"
-              :key="tag.id"
-              class="p-2 bg-gray-800 rounded-full hover:bg-gray-600 transition"
-            >
-              # {{ tag.name }}
-            </button>
-          </p>
-
+          <!-- =========================================================================================================== -->
+          <!-- sidebar -->
+          <!-- ==========================================================================================================  -->
           <div
-            class="w-40 aspect-[2/3] bg-white rounded-2xl flex flex-col mt-3"
+            class="col-span-1 bg-[#000000] p-4 text-white flex flex-col items-center"
           >
             <img
-              :src="
-                director?.profile_path
-                  ? 'https://image.tmdb.org/t/p/w300' + director.profile_path
-                  : 'img/no-profile.png'
-              "
+              :src="selectedItem.poster"
               loading="lazy"
-              class="w-full h-full object-contain rounded-2xl"
+              class="rounded-xl aspect-[2/3] w-64 border-2 object-cover"
             />
-            <div class="text-center text-black p-2">
-              <h2 class="font-bold text-md">Director</h2>
-              <p class="text-sm">{{ director?.name || "-" }}</p>
+            <div class="text-center mt-4 mb-2">
+              <p class="w-full text-2xl font-bold text-center">
+                {{ selectedItem.titleEN }}
+              </p>
+              <p
+                v-if="selectedItem.titleEN !== selectedItem.title"
+                class="text-sm text-gray-400 mt-2"
+              >
+                {{ selectedItem.title }}
+              </p>
+            </div>
+            <div class="p-2 items-center justify-center mb-3">
+              <div class="flex items-center justify-center gap-2 text-sm">
+                <p
+                  class="px-2 py-1 border border-white/40 bg-white/10 rounded-md font-bold"
+                >
+                  {{ normalizedAgeRating }}
+                </p>
+                <span>·</span>
+                <p class="">{{ selectedItem.time }}</p>
+              </div>
+              <div class="flex items-center justify-center gap-2 my-3 text-sm">
+                <p class="">{{ selectedItem.release }}</p>
+              </div>
+
+              <div class="flex flex-wrap gap-1 my-4 p-2">
+                <button
+                  v-for="tag in selectedItem.tags"
+                  :key="tag.id"
+                  class="p-2 bg-gray-700 rounded-md hover:bg-gray-800 transition cursor-pointer text-xs"
+                >
+                  # {{ tag.name }}
+                </button>
+              </div>
+
+              <div class="grid grid-cols gap-1 text-md mt-4 mb-2">
+                <div>
+                  <p class="text-gray-400">ชื่อดั้งเดิม</p>
+                  <p class="p-2">{{ selectedItem.originalTitle }}</p>
+                </div>
+
+                <div>
+                  <p class="text-gray-400">สถานะ</p>
+                  <p class="p-2">{{ selectedItem.status }}</p>
+                </div>
+
+                <div>
+                  <p class="text-gray-400">ภาษาดั้งเดิม</p>
+                  <p class="p-2">
+                    {{ selectedItem.originalLanguage.toUpperCase() }}
+                  </p>
+                </div>
+
+                <div>
+                  <p class="text-gray-400">ต้นทุน</p>
+                  <p class="p-2">
+                    {{
+                      selectedItem.budget && selectedItem.budget > 0
+                        ? `$ ${selectedItem.budget.toLocaleString()}`
+                        : "-"
+                    }}
+                  </p>
+                </div>
+
+                <div>
+                  <p class="text-gray-400">รายรับ</p>
+                  <p class="p-2">
+                    {{
+                      selectedItem.revenue && selectedItem.revenue > 0
+                        ? `$ ${selectedItem.revenue.toLocaleString()}`
+                        : "-"
+                    }}
+                  </p>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <p class="text-gray-400 text-md">คำค้นหา</p>
+                <div
+                  v-if="selectedItem.keywords?.length"
+                  class="flex flex-wrap gap-1 p-2"
+                >
+                  <button
+                    v-for="k in selectedItem.keywords"
+                    :key="k.id"
+                    class="p-2 bg-gray-700 rounded-md text-xs hover:bg-gray-800 transition cursor-pointer"
+                  >
+                    # {{ k.name }}
+                  </button>
+                </div>
+                <p v-else class="text-white/50 italic text-sm p-2">
+                  ยังไม่มีคำค้นหาถูกเพิ่ม
+                </p>
+              </div>
+            </div>
+            <div
+              class="w-40 aspect-[2/3] bg-white rounded-2xl flex flex-col mt-3"
+            >
+              <img
+                :src="
+                  director?.profile_path
+                    ? 'https://image.tmdb.org/t/p/w300' + director.profile_path
+                    : 'img/no-profile.png'
+                "
+                loading="lazy"
+                class="w-full h-full object-contain rounded-2xl"
+              />
+              <div class="text-center text-black p-2">
+                <h2 class="font-bold text-md">Director</h2>
+                <p class="text-sm">{{ director?.name || "-" }}</p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div
-          class="bg-[#0B0A0A] text-white col-span-3 flex flex-col items-center"
-        >
-          <div class="relative w-full aspect-video">
-            <iframe
-              v-if="isTrailerActive && trailer"
-              :src="trailer"
-              class="w-full h-full rounded-xl"
-              allow="autoplay; encrypted-media"
-              allowfullscreen
-            />
-            <img
-              v-else
-              :src="currentImage"
-              class="w-full h-full object-contain"
-            />
-            <button
-              class="fixed top-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full cursor-pointer"
-              @click="$emit('close')"
-            >
-              <FontAwesomeIcon icon="fa-solid fa-xmark" />
-            </button>
-          </div>
-
-          <div class="relative group/thumb">
-            <div
-              ref="thumbContainer"
-              class="w-full overflow-x-auto custom-scrollbar p-3 flex gap-2"
-              style="overflow-anchor: none"
-            >
+          <!-- =========================================================================================================== -->
+          <!-- main -->
+          <!-- ==========================================================================================================  -->
+          <div
+            class="bg-[#0B0A0A] text-white col-span-3 flex flex-col items-center"
+          >
+            <div class="relative w-full aspect-video">
+              <iframe
+                v-if="isTrailerActive && trailer"
+                :src="trailer"
+                class="w-full h-full rounded-xl"
+                allow="autoplay; encrypted-media"
+                allowfullscreen
+              />
+              <img
+                v-else
+                :src="currentImage"
+                class="w-full h-full object-contain"
+              />
               <div
-                v-if="trailerThumb"
-                ref="trailerThumbRef"
-                class="flex-shrink-0 h-20 w-36 cursor-pointer relative"
-                :class="
-                  isTrailerActive ? 'border-green-500' : 'border-transparent'
-                "
-                @click="
-                  isTrailerActive = true;
-                  stopAutoTemporarily();
-                "
-                currentIndex="0;"
+                class="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-black/100 to-transparent pointer-events-none"
+              ></div>
+              <div
+                class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_40%,rgba(0,0,0,0.6)_100%)] pointer-events-none"
+              ></div>
+              <button
+                class="fixed top-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full cursor-pointer text-white/70 hover:text-white transition duration-200"
+                @click="$emit('close')"
               >
-                <img :src="trailerThumb" class="w-full h-full object-cover" />
+                <FontAwesomeIcon icon="fa-solid fa-xmark" />
+              </button>
+            </div>
+
+            <div class="relative group/thumb mb-4 w-full">
+              <div
+                ref="thumbContainer"
+                class="w-full overflow-x-auto custom-scrollbar p-3 flex gap-2"
+                style="overflow-anchor: none"
+              >
                 <div
-                  class="absolute inset-0 flex items-center justify-center bg-black/30"
+                  v-if="hasTrailer"
+                  ref="trailerThumbRef"
+                  class="flex-shrink-0 h-20 w-36 cursor-pointer relative"
+                  :class="
+                    isTrailerActive ? 'border-green-500' : 'border-transparent'
+                  "
+                  @click="
+                    isTrailerActive = true;
+                    stopAutoTemporarily();
+                  "
+                  currentIndex="0;"
                 >
-                  <FontAwesomeIcon
-                    icon="fa-solid fa-play"
-                    class="text-white text-2xl"
+                  <img :src="trailerThumb" class="w-full h-full object-cover" />
+                  <div
+                    class="absolute inset-0 flex items-center justify-center bg-black/30"
+                  >
+                    <FontAwesomeIcon
+                      icon="fa-solid fa-play"
+                      class="text-white text-2xl"
+                    />
+                  </div>
+                  <p
+                    v-if="!hasTrailer"
+                    class="absolute bottom-2 right-2 text-xs text-white/60 bg-black/40 px-2 py-1 rounded"
+                  >
+                    ไม่มีตัวอย่างหนัง
+                  </p>
+                </div>
+                <div
+                  v-for="img in filteredImages"
+                  :key="img"
+                  loading="lazy"
+                  class="flex-shrink-0 h-20 cursor-pointer"
+                  :class="{
+                    'border-4 border-green-500':
+                      currentImage === img && !isTrailerActive,
+                  }"
+                  @click="
+                    isTrailerActive = false;
+                    currentImage = img;
+                    currentIndex = carouselItems.indexOf(img);
+                    stopAutoTemporarily();
+                  "
+                  :ref="(el) => (thumbRefs[img] = el)"
+                >
+                  <img
+                    :src="img"
+                    class="h-full object-contain"
+                    loading="lazy"
                   />
                 </div>
               </div>
               <div
-                v-for="img in filteredImages"
-                :key="img"
-                loading="lazy"
-                class="flex-shrink-0 h-20 cursor-pointer"
-                :class="{
-                  'border-4 border-green-500':
-                    currentImage === img && !isTrailerActive,
-                }"
-                @click="
-                  isTrailerActive = false;
-                  currentImage = img;
-                  currentIndex = carouselItems.indexOf(img);
-                  stopAutoTemporarily();
-                "
-                :ref="(el) => (thumbRefs[img] = el)"
+                class="flex absolute top-1/2 -translate-y-1/2 left-0 w-auto px-2"
               >
-                <img :src="img" class="h-full object-contain" loading="lazy" />
+                <button
+                  class="text-white text-lg p-2 bg-black/30 hover:bg-gray-700 rounded-full group-hover/thumb:cursor-pointer opacity-0 -translate-x-6 transition-all duration-500 group-hover/thumb:translate-x-0 group-hover/thumb:opacity-100"
+                  @click="prevSlide"
+                >
+                  <FontAwesomeIcon icon="fa-solid fa-arrow-left" />
+                </button>
+              </div>
+              <div
+                class="flex absolute top-1/2 -translate-y-1/2 right-0 w-auto px-2"
+              >
+                <button
+                  class="text-white text-lg p-2 bg-black/30 hover:bg-gray-700 rounded-full group-hover/thumb:cursor-pointer opacity-0 translate-x-6 transition-all duration-500 group-hover/thumb:translate-x-0 group-hover/thumb:opacity-100"
+                  @click="nextSlide"
+                >
+                  <FontAwesomeIcon icon="fa-solid fa-arrow-right" />
+                </button>
               </div>
             </div>
-            <div
-              class="flex absolute top-1/2 -translate-y-1/2 left-0 w-auto px-2"
-            >
-              <button
-                class="text-white text-lg p-2 bg-black/30 hover:bg-gray-700 rounded-full group-hover/thumb:cursor-pointer opacity-0 -translate-x-6 transition-all duration-500 group-hover/thumb:translate-x-0 group-hover/thumb:opacity-100"
-                @click="prevSlide"
-              >
-                <FontAwesomeIcon icon="fa-solid fa-arrow-left" />
-              </button>
-            </div>
-            <div
-              class="flex absolute top-1/2 -translate-y-1/2 right-0 w-auto px-2"
-            >
-              <button
-                class="text-white text-lg p-2 bg-black/30 hover:bg-gray-700 rounded-full group-hover/thumb:cursor-pointer opacity-0 translate-x-6 transition-all duration-500 group-hover/thumb:translate-x-0 group-hover/thumb:opacity-100"
-                @click="nextSlide"
-              >
-                <FontAwesomeIcon icon="fa-solid fa-arrow-right" />
-              </button>
-            </div>
-          </div>
-          <div class="w-[95%]">
-            <p class="my-2 text-2xl font-bold">Overview</p>
-            <p class="p-2 indent-8">
-              {{ selectedItem.description }}
-            </p>
 
-            <div class="">
-              <h2 class="font-bold text-2xl my-2">Actor</h2>
-              <div class="flex gap-3 overflow-x-auto custom-scrollbar p-4">
+            <div class="w-[95%] mb-6">
+              <div class="flex mb-6 justify-between">
+                <div class="flex gap-2 opacity-80 justify-center items-center">
+                  <p class="text-2xl">
+                    ⭐ {{ selectedItem.vote_average.toFixed(1) ?? "N/A" }}
+                  </p>
+                  <p class="text-gray-400 text-sm">
+                    ({{ selectedItem.vote_count ?? 0 }} รีวิว)
+                  </p>
+                  <FontAwesomeIcon
+                    icon="fa-solid fa-heart"
+                    class="hover:text-pink-500 text-2xl cursor-pointer p-2"
+                    @click="Favorite"
+                  />
+                </div>
+                <div class="flex gap-4 items-center">
+                  <a
+                    class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-full text-white transition"
+                  >
+                    รับชมได้ที่
+                  </a>
+                </div>
+              </div>
+              <p class="my-2 text-2xl font-bold">เรื่องย่อ</p>
+              <p class="p-2 indent-8">
+                {{ selectedItem.description }}
+              </p>
+
+              <h2 class="font-bold text-2xl mt-4 mb-2">นักแสดง</h2>
+              <div
+                v-if="actors.length"
+                class="flex gap-3 overflow-x-auto custom-scrollbar p-4"
+              >
                 <ImgNameAct
                   v-for="a in filteredActors"
                   :key="a.id"
@@ -174,6 +295,7 @@
                   :name="a.name"
                   :character="a.character"
                   loading="lazy"
+                  class="border"
                 />
                 <div
                   class="flex justify-center items-center ml-4 w-32 flex-shrink-0"
@@ -189,11 +311,15 @@
                   </button>
                 </div>
               </div>
-            </div>
+              <p v-else class="text-white/50 italic text-sm p-2">
+                ไม่มีข้อมูลนักแสดง
+              </p>
 
-            <div class="">
-              <h2 class="font-bold text-2xl my-2">Crew</h2>
-              <div class="flex gap-3 overflow-x-auto custom-scrollbar p-4">
+              <h2 class="font-bold text-2xl mt-4 mb-2">ทีมงาน</h2>
+              <div
+                v-if="crew.length"
+                class="flex gap-3 overflow-x-auto custom-scrollbar p-4"
+              >
                 <ImgNameCrew
                   v-for="c in filteredCrew"
                   :key="c.id"
@@ -201,7 +327,9 @@
                   :name="c.name"
                   :job="c.job"
                   loading="lazy"
+                  class="border"
                 />
+
                 <div
                   class="flex justify-center items-center ml-4 w-32 flex-shrink-0"
                 >
@@ -216,21 +344,79 @@
                   </button>
                 </div>
               </div>
+              <p v-else class="text-white/50 italic text-sm p-2">
+                ไม่มีข้อมูลทีมงาน
+              </p>
+
+              <div v-if="similarMovies.length" class="w-full mt-6">
+                <h2 class="text-2xl font-bold mt-4 mb-2">หนังที่คล้ายกัน</h2>
+                <div
+                  class="flex gap-2 overflow-x-auto overflow-y-hidden custom-scrollbar p-4"
+                >
+                  <CardM
+                    v-for="m in similarMovies"
+                    :key="m.id"
+                    :movie="m"
+                    loading="lazy"
+                    class="w-28 flex-shrink-0"
+                    @click="loadData(m.id)"
+                  />
+                </div>
+              </div>
+              <div v-if="recommendedMovies.length" class="w-full mt-6">
+                <h2 class="text-2xl font-bold mt-4 mb-2 text-green-400">
+                  แนะนำสำหรับคุณ
+                </h2>
+
+                <div
+                  class="flex gap-3 overflow-x-auto overflow-y-hidden custom-scrollbar p-4"
+                >
+                  <CardM
+                    v-for="m in recommendedMovies"
+                    :key="m.id"
+                    :movie="m"
+                    loading="lazy"
+                    class="w-28 flex-shrink-0"
+                    @click="loadData(m.id)"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </transition>
     </div>
   </transition>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed, onUnmounted, reactive, nextTick } from "vue";
+import {
+  ref,
+  watch,
+  computed,
+  onUnmounted,
+  onMounted,
+  reactive,
+  nextTick,
+} from "vue";
 import { useTMDB } from "../composables/useTMDB";
 import type { Movie, CreditsResponse, MovieImagesResponse } from "../Type/tmdb";
+import { useGlobalLoading } from "../composables/useGlobalLoading";
 
-const { getMovieDetails, getMovieCredits, getMovieImages, getMovieVideos } =
-  useTMDB();
+const {
+  getMovieDetails,
+  getMovieDetailsEN,
+  getMovieCreditsTH,
+  getMovieImages,
+  getMovieVideos,
+  getSimilarMovies,
+  getRecommendedMovies,
+  discoverMoviesByGenres,
+  getMovieKeywords,
+  getMovieCreditsEN,
+  getMovieReleaseDates,
+  getMovieAgeRating,
+} = useTMDB();
 
 const props = defineProps<{ selectedId: number | string }>();
 const emit = defineEmits(["close"]);
@@ -254,6 +440,13 @@ const trailerThumb = ref<string | null>(null);
 const trailerThumbRef = ref<HTMLElement | null>(null);
 const trailerPlayedOnce = ref(false);
 const userInteracted = ref(false);
+const similarMovies = ref<Movie[]>([]);
+const recommendedMovies = ref<Movie[]>([]);
+const currentMovieId = ref<number | null>(null);
+const isChanging = ref(false);
+const popupScroll = ref<HTMLElement | null>(null);
+const { start, stop } = useGlobalLoading();
+
 // computed
 const filteredImages = computed(() => {
   return showAllImages.value ? images.value : images.value.slice(0, 10);
@@ -272,27 +465,54 @@ function formatRuntime(mins: number) {
   return `${h}h ${m}m`;
 }
 async function loadData(id: number) {
+  if (currentMovieId.value === id) return;
+  start();
+
+  // รอ fade-out นิดนึง
+  await new Promise((r) => setTimeout(r, 200));
+
+  // 🔥 โหลดทุกอย่าง
   await loadTrailer(id);
-  const movie = await getMovieDetails(id);
-  if (!movie) return;
+  const movieTH = await getMovieDetails(id);
+  const movieEN = await getMovieDetailsEN(id);
+  const keywords = await getMovieKeywords(id);
+  const ageRating = await getMovieAgeRating(id);
+  if (!movieTH) return;
 
   selectedItem.value = {
-    id: movie.id,
-    title: movie.title,
-    poster: movie.poster_path
-      ? "https://image.tmdb.org/t/p/w500" + movie.poster_path
+    id: movieTH.id,
+    poster: movieTH.poster_path
+      ? "https://image.tmdb.org/t/p/w500" + movieTH.poster_path
       : "img/no-poster.png",
-    backdrop: movie.backdrop_path
-      ? "https://image.tmdb.org/t/p/original" + movie.backdrop_path
+    backdrop: movieTH.backdrop_path
+      ? "https://image.tmdb.org/t/p/original" + movieTH.backdrop_path
       : "img/no-poster.png",
-    ageRating: movie.adult ? "18+" : "PG-13",
-    time: formatRuntime(movie.runtime),
-    description: movie.overview || "No overview available.",
-    tags: movie.genres || [],
+    ageRating,
+    vote_average: movieTH.vote_average,
+    vote_count: movieTH.vote_count,
+    time: formatRuntime(movieTH.runtime),
+    release: movieTH.release_date,
+    title: movieTH.title,
+    titleEN: movieEN.title,
+    description: movieTH.overview || "No overview available.",
+    tags: movieEN?.genres || [],
+    originalTitle: movieTH.original_title,
+    status: movieTH.status,
+    originalLanguage: movieTH.original_language || "Unknown",
+    budget: movieTH.budget,
+    revenue: movieTH.revenue,
+    keywords: keywords?.keywords ?? [],
   };
 
-  // Images
-  const imgs = await getMovieImages(id);
+  // images / credits / recommend
+  const [imgs, creditTH, creditEN, similar, recommend] = await Promise.all([
+    getMovieImages(id),
+    getMovieCreditsTH(id),
+    getMovieCreditsEN(id),
+    getSimilarMovies(id),
+    getRecommendedMovies(id),
+  ]);
+
   images.value =
     imgs?.backdrops?.map(
       (b) => "https://image.tmdb.org/t/p/original" + b.file_path
@@ -300,11 +520,8 @@ async function loadData(id: number) {
 
   currentImage.value = images.value[0] || "img/no-poster.png";
 
-  // Credits
-  const credit = await getMovieCredits(id);
-
   actors.value =
-    credit?.cast?.map((c) => ({
+    creditEN?.cast?.map((c) => ({
       id: c.id,
       name: c.name,
       character: c.character,
@@ -314,7 +531,7 @@ async function loadData(id: number) {
     })) || [];
 
   crew.value =
-    credit?.crew?.map((c) => ({
+    creditEN?.crew?.map((c) => ({
       id: c.id,
       name: c.name,
       job: c.job || c.department || "-",
@@ -322,12 +539,29 @@ async function loadData(id: number) {
         ? "https://image.tmdb.org/t/p/w500" + c.profile_path
         : "img/no-profile.png",
     })) || [];
-  director.value = credit?.crew?.find((c) => c.job === "Director") || null;
 
-  if (director.value && !director.value.profile_path) {
-    director.value.profile_path = "img/no-profile.png";
-  }
+  director.value = creditEN?.crew?.find((c) => c.job === "Director") || null;
+
+  similarMovies.value = similar?.results?.slice(0, 10) || [];
+  recommendedMovies.value = recommend?.results?.slice(0, 10) || [];
+
+  // 🔝 ค่อย scroll ขึ้นบน ตอนข้อมูลพร้อมแล้ว
+  nextTick(() => {
+    requestAnimationFrame(() => {
+      popupScroll.value?.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    });
+  });
+
+  currentMovieId.value = id;
+  isChanging.value = false;
+  stop();
 }
+const hasTrailer = computed(() => {
+  return !!trailer.value;
+});
 
 // WATCH selectedId
 watch(
@@ -340,24 +574,16 @@ watch(
 // AUTO SWITCH IMAGE
 let interval: any = null;
 const carouselItems = computed(() => {
-  const items: string[] = [];
-
-  if (trailer.value) items.push("TRAILER");
-  items.push(...filteredImages.value);
-
-  return items;
+  return hasTrailer.value
+    ? ["TRAILER", ...filteredImages.value]
+    : [...filteredImages.value];
 });
+
 function startAutoSwitch() {
   clearInterval(interval);
-  if (isTrailerActive.value) return;
   if (carouselItems.value.length <= 1) return;
 
   interval = setInterval(() => {
-    if (isTrailerActive.value) {
-      clearInterval(interval);
-      return;
-    }
-
     currentIndex.value = (currentIndex.value + 1) % carouselItems.value.length;
 
     const current = carouselItems.value[currentIndex.value];
@@ -394,18 +620,20 @@ function scrollToCurrentThumb() {
 
     let el: HTMLElement | null = null;
 
-    // trailer
-    if (trailerThumb.value && currentIndex.value === 0) {
+    // 🎬 trailer
+    if (hasTrailer.value && currentIndex.value === 0) {
       el = trailerThumbRef.value;
     }
-    // images
+    // 🖼 images
     else {
-      const imgIndex = trailerThumb.value
+      const imgIndex = hasTrailer.value
         ? currentIndex.value - 1
         : currentIndex.value;
 
       const img = filteredImages.value[imgIndex];
-      el = thumbRefs[img];
+      if (!img) return;
+
+      el = thumbRefs[img] as HTMLElement | null;
     }
 
     if (!el) return;
@@ -417,25 +645,37 @@ function scrollToCurrentThumb() {
   });
 }
 async function loadTrailer(id: number) {
-  const videos = await getMovieVideos(id);
+  try {
+    let videos = await getMovieVideos(id);
 
-  const officialTrailer = videos?.results?.find(
-    (v) => v.site === "YouTube" && v.type === "Trailer" && v.official
-  );
+    if (!videos?.results?.length) {
+      console.warn("No videos in th-TH, fallback to en-US");
+      videos = await getMovieVideos(id);
+    }
 
-  // fallback ถ้าไม่มี official
-  const fallback = videos?.results?.find(
-    (v) => v.site === "YouTube" && v.type === "Trailer"
-  );
+    const officialTrailer = videos?.results?.find(
+      (v) => v.site === "YouTube" && v.type === "Trailer" && v.official
+    );
 
-  const video = officialTrailer || fallback;
+    const fallback = videos?.results?.find(
+      (v) => v.site === "YouTube" && v.type === "Trailer"
+    );
 
-  if (video) {
-    trailer.value = `https://www.youtube.com/embed/${video.key}?autoplay=1&mute=1`;
-    trailerThumb.value = `https://img.youtube.com/vi/${video.key}/hqdefault.jpg`;
-    isTrailerActive.value = false;
-    trailerPlayedOnce.value = false;
-  } else {
+    const video = officialTrailer || fallback;
+
+    if (video) {
+      trailer.value = `https://www.youtube.com/embed/${video.key}?autoplay=1&mute=1`;
+      trailerThumb.value = `https://img.youtube.com/vi/${video.key}/hqdefault.jpg`;
+      isTrailerActive.value = false;
+      trailerPlayedOnce.value = false;
+    } else {
+      trailer.value = null;
+      trailerThumb.value = null;
+      isTrailerActive.value = false;
+      currentIndex.value = 0;
+    }
+  } catch (err) {
+    console.error("Failed to fetch trailer:", err);
     trailer.value = null;
     trailerThumb.value = null;
     isTrailerActive.value = false;
@@ -477,7 +717,7 @@ function stopAutoTemporarily() {
 
 const applySlide = () => {
   // Trailer
-  if (trailerThumb.value && currentIndex.value === 0) {
+  if (hasTrailer.value && currentIndex.value === 0) {
     isTrailerActive.value = true;
     scrollToCurrentThumb();
     return;
@@ -493,7 +733,7 @@ const applySlide = () => {
 };
 
 const totalItems = computed(() => {
-  return (trailerThumb ? 1 : 0) + filteredImages.value.length;
+  return (hasTrailer.value ? 1 : 0) + filteredImages.value.length;
 });
 
 const nextSlide = () => {
@@ -508,6 +748,25 @@ const prevSlide = () => {
   applySlide();
   stopAutoTemporarily();
 };
+onMounted(() => {
+  document.body.style.overflow = "hidden";
+});
+
+onUnmounted(() => {
+  document.body.style.overflow = "";
+});
+
+const normalizedAgeRating = computed(() => {
+  const r = selectedItem.value?.ageRating?.toString().toUpperCase() ?? "NR";
+
+  if (["G", "PG"].includes(r)) return "G";
+  if (["13+", "13", "PG-13"].includes(r)) return "13+";
+  if (["15+", "15"].includes(r)) return "15+";
+  if (["18+", "18", "R", "NC-17"].includes(r)) return "18+";
+  if (["20+", "20"].includes(r)) return "20";
+
+  return "NR";
+});
 </script>
 
 <style scoped>
@@ -525,5 +784,19 @@ const prevSlide = () => {
 }
 img {
   transition: opacity 0.3s ease;
+}
+.popup-swap-enter-active,
+.popup-swap-leave-active {
+  transition: all 0.35s ease;
+}
+
+.popup-swap-enter-from {
+  opacity: 0;
+  transform: translateX(16px);
+}
+
+.popup-swap-leave-to {
+  opacity: 0;
+  transform: translateX(-16px);
 }
 </style>
