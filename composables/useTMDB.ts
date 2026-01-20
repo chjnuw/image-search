@@ -72,11 +72,16 @@ export const useTMDB = () => {
     const en = await getMovieDetailsEN(id);
 
     return {
-      ...(en ?? {}),
-      ...(th ?? {}),
-      title: th?.title || en?.title,
-      overview: th?.overview || en?.overview,
-      tagline: th?.tagline || en?.tagline,
+    ...(en ?? {}),
+    ...(th ?? {}),
+
+    // ✅ แยกชื่อชัดเจน
+    title_en: en?.title || null,
+    title_th: th?.title || null,
+
+    // ✅ content ใช้ TH ก่อน fallback EN
+    overview: th?.overview || en?.overview,
+    tagline: th?.tagline || en?.tagline,
     };
   };
 
@@ -283,6 +288,8 @@ export const useTMDB = () => {
         th?.known_for_department || en?.known_for_department,
     };
   };
+
+  
 
   return {
     getPopularMovies,

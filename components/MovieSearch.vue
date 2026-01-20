@@ -35,15 +35,14 @@
           class="aspect-[2/3] rounded-md"
         />
         <div>
-          <p class="font-semibold text-white">
-            {{ movie.original_title }}
+          <p class="font-bold text-md line-clamp-2 text-white">
+            {{ getDisplayTitle(movie).main }}
           </p>
-          <p
-            v-if="movie.original_title !== movie.title"
-            class="text-xs text-gray-400"
-          >
-            {{ movie.title }}
+
+          <p v-if="getDisplayTitle(movie).sub" class="text-sm text-gray-400">
+            {{ getDisplayTitle(movie).sub }}
           </p>
+
           <div class="flex gap-1 my-1">
             <p class="text-xs text-gray-400">
               ⭐ {{ movie.vote_average.toFixed(1) }}
@@ -62,11 +61,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick } from "vue";
+import { ref, watch, nextTick,computed } from "vue";
 import { useTMDB } from "../composables/useTMDB";
 import type { Movie } from "../Type/tmdb";
 
-const { searchMovies } = useTMDB();
+const { searchMovies,getMovieDetailsEN } = useTMDB();
 
 const query = ref("");
 const movies = ref<Movie[]>([]);
@@ -88,6 +87,7 @@ watch(query, (val) => {
   timer = setTimeout(async () => {
     const res = await searchMovies(val);
     movies.value = res?.results?.slice(0, 6) ?? [];
+     preloadEnTitles(movies.value);
   }, 400);
 });
 
@@ -116,4 +116,31 @@ const focusInput = async () => {
   inputRef.value?.focus();
 };
 defineExpose({ focusInput });
+
+
+const enTitle = ref<string | null>(null);
+const enTitleMap = ref<Record<number, string>>({});
+
+const preloadEnTitles = async (movies: Movie[]) => {
+  movies.forEach(async (m) => {
+    if (enTitleMap.value[m.id]) return;
+
+    try {
+      const en = await getMovieDetailsEN(m.id);
+      enTitleMap.value[m.id] = en?.title || m.original_title || m.title;
+    } catch {
+      enTitleMap.value[m.id] = m.original_title || m.title;
+    }
+  });
+};
+
+const getDisplayTitle = (movie: Movie) => {
+  const en = enTitleMap.value[movie.id] || null;
+  const th = movie.title;
+
+  return {
+    main: en || th || null,
+    sub: th && en && th !== en ? th : null,
+  };
+};
 </script>

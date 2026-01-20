@@ -84,7 +84,7 @@
                 class="w-full"
               />
             </div>
-            <Streaming @update="onProviderChange" class="my-4" />
+            <Streaming @update="onProviderChange" class="w-full my-4 flex-shrink-0" />
           </div>
         </div>
       </div>
@@ -109,7 +109,7 @@
             />
             <div
               v-else
-              class="grid gap-4 px-4 pt-6"
+              class="grid gap-2 px-4 pt-6"
               style="
                 grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
               "
@@ -148,6 +148,8 @@ import { ref, onMounted, watch, onUnmounted, unref, Ref, computed } from "vue";
 import type { Movie, Genre } from "../Type/tmdb";
 import { useTMDB } from "../composables/useTMDB";
 import { useGlobalLoading } from "../composables/useGlobalLoading";
+
+
 const { start, stop } = useGlobalLoading();
 const {
   getPopularMovies,
@@ -384,6 +386,7 @@ function handleSearchMovie(movie) {
   selectedId.value = movie.id
   showPopup.value = true
 }
+
 </script>
 
 <style>

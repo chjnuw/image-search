@@ -1,15 +1,15 @@
 <template>
   <div>
-    <p class="font-bold text-xl mb-2 text-white">
-      บริการสตรีมมิ่ง
-    </p>
+    <p class="font-bold text-xl mb-2 text-white">บริการสตรีมมิ่ง</p>
 
-    <div class="flex gap-2 flex-wrap p-2">
+    <div
+      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 p-2"
+    >
       <button
         v-for="prov in providers"
         :key="prov.provider_id"
         @click="toggle(prov.provider_id)"
-        class="rounded-lg p-2 transition border cursor-pointer"
+        class="rounded-lg p-2 transition border cursor-pointer justify-center flex items-center"
         :class="
           selected.includes(prov.provider_id)
             ? 'border-green-400 bg-white/10'
@@ -47,7 +47,7 @@ onMounted(async () => {
 
 function toggle(id: number) {
   if (selected.value.includes(id)) {
-    selected.value = selected.value.filter(p => p !== id);
+    selected.value = selected.value.filter((p) => p !== id);
   } else {
     selected.value.push(id);
   }

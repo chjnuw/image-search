@@ -40,11 +40,13 @@
             </div>
             <div class="p-2 items-center justify-center mb-3">
               <div class="flex items-center justify-center gap-2 text-sm">
-                <p
-                  class="px-2 py-1 border border-white/40 bg-white/10 rounded-md font-bold"
+                <span
+                  v-if="selectedItem?.ageRating"
+                  class="px-2 py-1 border rounded-md font-bold backdrop-blur-md text-xs"
+                  :class="normalizeAgeRating(selectedItem.ageRating).class"
                 >
-                  {{ normalizedAgeRating }}
-                </p>
+                  {{ normalizeAgeRating(selectedItem.ageRating).label }}
+                </span>
                 <span>·</span>
                 <p class="">{{ selectedItem.time }}</p>
               </div>
@@ -351,7 +353,7 @@
               <div v-if="similarMovies.length" class="w-full mt-6">
                 <h2 class="text-2xl font-bold mt-4 mb-2">หนังที่คล้ายกัน</h2>
                 <div
-                  class="flex gap-2 overflow-x-auto overflow-y-hidden custom-scrollbar p-4"
+                  class="flex gap-2 overflow-x-auto overflow-y-hidden custom-scrollbar p-4 border"
                 >
                   <CardM
                     v-for="m in similarMovies"
@@ -363,21 +365,16 @@
                   />
                 </div>
               </div>
-              <div v-if="recommendedMovies.length" class="w-full mt-6">
+              <div class="w-full mt-6">
                 <h2 class="text-2xl font-bold mt-4 mb-2 text-green-400">
                   แนะนำสำหรับคุณ
                 </h2>
 
-                <div
-                  class="flex gap-3 overflow-x-auto overflow-y-hidden custom-scrollbar p-4"
-                >
-                  <CardM
-                    v-for="m in recommendedMovies"
-                    :key="m.id"
-                    :movie="m"
+                <div class="flex gap-2 overflow-hidden">
+                  <Recomment
                     loading="lazy"
-                    class="w-28 flex-shrink-0"
-                    @click="loadData(m.id)"
+                    class="flex overflow-x-auto custom-scrollbar"
+                    @click="loadData(id)"
                   />
                 </div>
               </div>
@@ -402,6 +399,7 @@ import {
 import { useTMDB } from "../composables/useTMDB";
 import type { Movie, CreditsResponse, MovieImagesResponse } from "../Type/tmdb";
 import { useGlobalLoading } from "../composables/useGlobalLoading";
+import { normalizeAgeRating } from "../utils/ageRating";
 
 const {
   getMovieDetails,
@@ -754,18 +752,6 @@ onMounted(() => {
 
 onUnmounted(() => {
   document.body.style.overflow = "";
-});
-
-const normalizedAgeRating = computed(() => {
-  const r = selectedItem.value?.ageRating?.toString().toUpperCase() ?? "NR";
-
-  if (["G", "PG"].includes(r)) return "G";
-  if (["13+", "13", "PG-13"].includes(r)) return "13+";
-  if (["15+", "15"].includes(r)) return "15+";
-  if (["18+", "18", "R", "NC-17"].includes(r)) return "18+";
-  if (["20+", "20"].includes(r)) return "20";
-
-  return "NR";
 });
 </script>
 

@@ -9,8 +9,8 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      TMDB_API_KEY: process.env.TMDB_API_KEY,
       TMDB_READ_TOKEN: process.env.TMDB_READ_TOKEN,
+      TMDB_API_KEY: process.env.TMDB_API_KEY,
     },
   },
 });

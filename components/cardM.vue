@@ -1,6 +1,6 @@
 <template>
   <div
-    class="hover:scale-110 relative transition-transform duration-300 cursor-pointer overflow-hidden group hidden md:block"
+    class="hover:scale-105 relative transition-transform duration-300 cursor-pointer overflow-hidden group hidden md:block"
     v-bind="$attrs"
     @mouseenter="onEnter"
     @mouseleave="onLeave"
@@ -30,43 +30,103 @@
   <transition name="fade">
     <div
       v-if="isHover"
-      class="fixed z-50 w-56 bg-black/90 text-white rounded-lg shadow-xl p-3 pointer-events-none"
+      class="fixed z-50 w-64 bg-black/90 text-white rounded-lg shadow-xl p-3 pointer-events-none"
       :style="popupStyle"
     >
-      <p class="font-bold text-md line-clamp-2">
-        {{ displayTitle.main }}
-      </p>
+      <SkeletonCatagorySkeletonMovieHover v-if="isLoadingDetail" />
+      <template v-else>
+        <p class="font-bold text-md line-clamp-2">
+          {{ displayTitle.main }}
+        </p>
 
-      <p v-if="displayTitle.sub" class="text-sm text-gray-400">
-        {{ displayTitle.sub }}
-      </p>
+        <p v-if="displayTitle.sub" class="text-sm text-gray-400">
+          {{ displayTitle.sub }}
+        </p>
 
-      <div class="flex gap-2 text-xs mt-1 opacity-80">
-        <p>⭐ {{ movie.vote_average.toFixed(1) }}</p>
-        <p class="text-xs text-gray-400">({{ movie.vote_count ?? 0 }} รีวิว)</p>
-        <span v-if="movie.release_date">
-          {{ movie.release_date.slice(0, 4) }}
-        </span>
-      </div>
+        <div class="flex gap-2 text-xs mt-1 items-center opacity-80">
+          <span
+            v-if="ageRating"
+            class="px-2 py-1 border rounded-md font-bold backdrop-blur-md"
+            :class="normalizeAgeRating(ageRating).class"
+          >
+            {{ normalizeAgeRating(ageRating).label }}
+          </span>
 
-      <p class="text-xs mt-2 line-clamp-3 opacity-70">
-        {{ movie.overview }}
-      </p>
+          <p>⭐ {{ props.movie.vote_average.toFixed(1) }}</p>
+
+          <p class="text-xs text-gray-400">
+            ({{ props.movie.vote_count ?? 0 }} รีวิว)
+          </p>
+
+          <span v-if="props.movie.release_date">
+            {{ props.movie.release_date.slice(0, 4) }}
+          </span>
+        </div>
+
+        <div class="flex flex-wrap gap-1 mt-2">
+          <button
+            v-for="gid in props.movie.genre_ids ?? []"
+            :key="gid"
+            class="px-2 py-1 bg-green-600/20 text-green-400 rounded-md transition text-xs"
+          >
+            # {{ genreMap[gid] }}
+          </button>
+        </div>
+
+        <p class="text-xs mt-2 line-clamp-3 opacity-70">
+          {{ props.movie.overview }}
+        </p>
+      </template>
     </div>
   </transition>
 </template>
 
 <script setup lang="ts">
 import type { Movie } from "../Type/tmdb";
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
+import { useTMDB } from "../composables/useTMDB";
+import { normalizeAgeRating } from "../utils/ageRating";
 
+const { getMovieAgeRating, getMovieDetailsEN } = useTMDB();
+const ageRating = ref<string | null>(null);
+let ageFetched = false;
+
+const tags = ref<{ id: number; name: string }[]>([]);
+let fetched = false;
 const isHover = ref(false);
 let hoverTimer: number | null = null;
 
+const isLoadingDetail = ref(false);
+
+const enTitle = ref<string | null>(null);
+let enFetched = false;
+
 const onEnter = () => {
-  hoverTimer = window.setTimeout(() => {
+  hoverTimer = window.setTimeout(async () => {
     isHover.value = true;
-  }, 1200); // ⏱️ 1.2 วินาที (ปรับได้)
+
+    if (!ageFetched || !enFetched) {
+      isLoadingDetail.value = true;
+
+      try {
+        if (!ageFetched) {
+          ageRating.value = await getMovieAgeRating(props.movie.id);
+          ageFetched = true;
+        }
+
+        if (!enFetched) {
+          const enDetail = await getMovieDetailsEN(props.movie.id);
+          enTitle.value = enDetail?.title || props.movie.original_title || null;
+          enFetched = true;
+        }
+      } catch (e) {
+        enTitle.value = props.movie.original_title || null;
+        ageRating.value = "NR";
+      } finally {
+        isLoadingDetail.value = false;
+      }
+    }
+  }, 1200);
 };
 
 const onLeave = () => {
@@ -75,6 +135,7 @@ const onLeave = () => {
     hoverTimer = null;
   }
   isHover.value = false;
+  isLoadingDetail.value = false;
 };
 
 const mouseX = ref(0);
@@ -116,18 +177,20 @@ const Favorite = () => {
   alert("Added to Favorite!");
 };
 
-
 const displayTitle = computed(() => {
-  const th = props.movie.title_th || props.movie.title;
-  const en = props.movie.title_en || props.movie.original_title;
+  const main = enTitle.value || null;
 
-  if (!th || th === en) {
-    return { main: en, sub: null };
-  }
+const thTitle = props.movie.title;
 
-  return { main: en, sub: th };
+const sub =
+    thTitle &&
+    main &&
+    thTitle !== main
+      ? thTitle
+      : null;
+
+  return { main, sub };
 });
-
 </script>
 
 <style>

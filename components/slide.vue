@@ -31,7 +31,7 @@
           :class="item.loadedHD ? 'opacity-100' : 'opacity-0'"
         />
 
-<!-- ================================================= Gradient overlays ======================================================-->
+        <!-- ================================================= Gradient overlays ======================================================-->
         <div
           class="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-black/100 to-transparent pointer-events-none"
         ></div>
@@ -41,33 +41,39 @@
         <div
           class="absolute inset-0 bg-gradient-to-r from-black/70 via-transparent to-black/30 pointer-events-none"
         ></div>
-<!-- ======================================================================================================================== -->
+        <!-- ======================================================================================================================== -->
         <span
           :class="[
-            'absolute top-1/2 -translate-y-1/2 text-white p-4 w-1/3 ',
+            'absolute top-1/2 -translate-y-1/2 text-white p-4 w-1/3',
             item.textPosition === 'left'
-              ? 'left-[5%] text-left'
+              ? 'left-[5%] text-left '
               : 'right-[5%] text-left',
           ]"
         >
-          <h2
-            class="text-5xl font-bold text-shadow-lg/40 drop-shadow-lg/70 text-center"
-          >
-            {{ item.title }}
-          </h2>
+
+            <p class="text-5xl font-bold text-shadow-lg/40 drop-shadow-lg/70 text-center">
+              {{ displayTitle.main }}
+            </p>
+
+            <p v-if="displayTitle.sub" class="text-2xl text-gray-300 text-center text-shadow-lg/40 drop-shadow-lg/70 mt-3">
+              {{ displayTitle.sub }}
+            </p>
+      
+
           <p
-            class="mt-4 p-2 text-shadow-lg/40 drop-shadow-lg/100 text-base justify-center flex text-center w-full items-center gap-2"
+            class="mt-2 p-2 text-shadow-lg/40 drop-shadow-lg/100 text-base justify-center flex text-center w-full items-center gap-2"
           >
             <span
-              class="px-2 py-1 border border-white/40 bg-white/10 backdrop-blur-md rounded-md h-full font-bold"
+              class="px-2 py-1 border rounded-md font-bold backdrop-blur-md"
+              :class="normalizeAgeRating(item.ageRating).class"
             >
-              {{ item.ageRating }}
+              {{ normalizeAgeRating(item.ageRating).label }}
             </span>
             <span class="">·</span>
             <span class="w-auto h-full">{{ item.release }}</span>
           </p>
           <p
-            class="text-shadow-lg/40 drop-shadow-lg/100 text-base justify-center flex text-center w-full items-center"
+            class="text-shadow-lg/40 drop-shadow-lg/100 text-base justify-center flex text-center w-full items-center text-green-400"
           >
             <span class="w-full"
               ><span class="px-2">●</span
@@ -77,22 +83,22 @@
             >
           </p>
           <p
-            class="mt-4 text-shadow-lg/40 drop-shadow-lg/100 text-lg indent-8 overflow-y-auto max-h-40 custom-scrollbar"
+            class="mt-4 text-shadow-lg/50 drop-shadow-lg/100 text-lg indent-8 overflow-y-auto max-h-20 custom-scrollbar"
           >
             {{ item.description }}
           </p>
           <div class="justify-self-center space-x-14 mt-10">
             <button
-              class="bg-green-500 w-40 h-13 rounded-xl text-shadow-md drop-shadow-xl/50 cursor-pointer"
+              class="bg-green-500 w-40 h-13 rounded-xl text-shadow-lg/40 drop-shadow-xl/50 cursor-pointer"
               @click="openPopup(item.id)"
             >
-              <span class="pr-1"
+              <span class="pr-1 "
                 ><FontAwesomeIcon icon="fa-solid fa-circle-info"
               /></span>
               More info
             </button>
             <button
-              class="bg-gray-500 w-40 h-13 rounded-xl text-shadow-md drop-shadow-xl/50 cursor-pointer"
+              class="bg-gray-500 w-40 h-13 rounded-xl text-shadow-lg/40 drop-shadow-xl/50 cursor-pointer"
             >
               <span class="pr-1"
                 ><FontAwesomeIcon icon="fa-regular fa-heart" /></span
@@ -136,11 +142,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch } from "vue";
+import { ref, onMounted, onUnmounted, watch, computed } from "vue";
 import { useTMDB } from "../composables/useTMDB";
 import { genreMap } from "../composables/genreMap";
+import { normalizeAgeRating } from "../utils/ageRating";
 const items = ref([]);
-const { getPopularMovies } = useTMDB();
+const { getPopularMovies, getMovieAgeRating, getMovieDetailsEN } = useTMDB();
 
 const currentIndex = ref(0);
 let interval = null;
@@ -246,10 +253,10 @@ const selectedItem = computed(() =>
 onMounted(async () => {
   const res = await getPopularMovies();
 
-  if (res?.results) {
+  if (res?.results?.length) {
     const mapped = res.results.map((m) => ({
       id: m.id,
-      title: m.title,
+      titleTH: m.title,
       description: m.overview,
 
       lq: `https://image.tmdb.org/t/p/w92${m.backdrop_path}`,
@@ -258,36 +265,33 @@ onMounted(async () => {
 
       full: `https://image.tmdb.org/t/p/original${m.backdrop_path}`,
 
+      loadedLQ: false,
       loadedHD: false,
       loadedFull: false,
 
-      ageRating: m.adult ? "18+" : "PG-13",
+      ageRating: null,
       release: m.release_date,
       tages:
         m.genre_ids?.map((g) => ({ name: genreMap[g] || "Unknown" })) || [],
       textPosition: "left",
     }));
-    for (const item of mapped) {
-      const lqImg = new Image();
-      lqImg.src = item.lq;
-      lqImg.onload = () => (item.loadedLQ = true);
-
-      const hdImg = new Image();
-      hdImg.src = item.hd;
-      hdImg.onload = () => (item.loadedHD = true);
-
-      const fullImg = new Image();
-      fullImg.src = item.full;
-      fullImg.onload = () => (item.loadedFull = true);
-    }
-
     items.value = mapped;
+    preloadEnTitles(items.value);
     mapped.forEach((item) => {
-      const lqImg = new Image();
-      lqImg.src = item.lq;
-      lqImg.onload = () => (item.loadedLQ = true);
-    });
+      const lq = new Image();
+      lq.src = item.lq;
+      lq.onload = () => (item.loadedLQ = true);
 
+      const hd = new Image();
+      hd.src = item.hd;
+      hd.onload = () => (item.loadedHD = true);
+
+      const full = new Image();
+      full.src = item.full;
+      full.onload = () => (item.loadedFull = true);
+    });
+    loadAgeRating(items.value[0]);
+    startAutoSlide();
     // โหลด HD สำหรับ slide ปัจจุบัน + ถัดไป
     const loadHDForSlides = (index) => {
       const slidesToLoad = [mapped[index], mapped[(index + 1) % mapped.length]];
@@ -307,7 +311,7 @@ onMounted(async () => {
       loadHDForSlides(index);
     });
   }
-  startAutoSlide();
+
   window.addEventListener("keydown", handleEsc);
 });
 
@@ -339,6 +343,55 @@ watch(showPopup, (val) => {
 const handleEsc = (e) => {
   if (e.key === "Escape") showPopup.value = false;
 };
+
+const loadAgeRating = async (item) => {
+  if (!item || item.ageRating) return;
+
+  try {
+    item.ageRating = await getMovieAgeRating(item.id);
+  } catch (e) {
+    item.ageRating = "NR";
+  }
+};
+
+watch(currentIndex, (index) => {
+  loadAgeRating(items.value[index]);
+});
+
+const preloadEnTitles = async (items) => {
+  await Promise.all(
+    items.map(async (item) => {
+      try {
+        const en = await getMovieDetailsEN(item.id);
+        item.titleEN = en?.title || item.titleTH;
+      } catch {
+        item.titleEN = item.titleTH;
+      }
+    })
+  );
+};
+
+const displayTitle = computed(() => {
+  const item = items.value[visibleIndex.value];
+  if (!item) return { main: null, sub: null };
+
+  const main = item.titleEN || item.titleTH || null;
+
+  const sub =
+    item.titleTH && item.titleEN && item.titleTH !== item.titleEN
+      ? item.titleTH
+      : null;
+
+  return { main, sub };
+});
+
+const visibleIndex = ref(0);
+
+watch(currentIndex, (i) => {
+  setTimeout(() => {
+    visibleIndex.value = i;
+  }, 250); // ครึ่งหนึ่งของ slide animation
+});
 </script>
 
 <style></style>
