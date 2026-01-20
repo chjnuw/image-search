@@ -4,10 +4,6 @@ import { db } from '../db'
 export default defineEventHandler(async (event) => {
   const userId = getCookie(event, 'user_id')
 
-  console.log('PROFILE COOKIE user_id =', userId)
-  console.log('COOKIE HEADER =', event.node.req.headers.cookie)
-
-
   if (!userId) {
     throw createError({
       statusCode: 401,
@@ -27,5 +23,18 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  return rows[0]
+  // ✅ เพิ่ม: ดึงแท็กที่เลือกไว้
+  const [tags]: any = await db.query(
+    `SELECT t.id, t.name
+     FROM user_tags ut
+     JOIN tag t ON ut.tag_id = t.id
+     WHERE ut.user_id = ?`,
+    [userId]
+  )
+
+  // ✅ ส่งกลับพร้อม tags
+  return {
+    ...rows[0],
+    tags
+  }
 })

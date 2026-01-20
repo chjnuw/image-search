@@ -1,6 +1,9 @@
 import { db } from '../db'
 
 export default defineEventHandler(async () => {
-  const [rows] = await db.query('SELECT * FROM tag')
+  const [rows]: any = await db.query(
+    'SELECT id, name FROM tag ORDER BY name'
+  )
+
   return rows
 })
