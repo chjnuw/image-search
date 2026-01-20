@@ -3,11 +3,12 @@ import bcrypt from 'bcrypt'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
-  const { name, email, password, gender } = body
+const { name, email, password, gender, birthdate, age } = body
 
-  if (!name || !email || !password || !gender) {
-    return { ok: false, message: 'ข้อมูลไม่ครบ' }
-  }
+ if (!name || !email || !password || !gender) {
+  return { ok: false, message: 'ข้อมูลไม่ครบ' }
+}
+
 
   // เช็กซ้ำ
   const [rows]: any = await db.query(
@@ -22,11 +23,13 @@ export default defineEventHandler(async (event) => {
   // 🔐 เข้ารหัส password
   const hashedPassword = await bcrypt.hash(password, 10)
 
-  const [result]: any = await db.query(
-    `INSERT INTO user (username, email, password, gender, role, status)
-     VALUES (?, ?, ?, ?, 'user', 1)`,
-    [name, email, hashedPassword, gender]
-  )
+const [result]: any = await db.query(
+  `INSERT INTO user 
+   (username, email, password, gender, role, status, birthdate, age)
+   VALUES (?, ?, ?, ?, 'user', 1, ?, ?)`,
+  [name, email, hashedPassword, gender, birthdate, age]
+)
+
 
   return {
     ok: true,

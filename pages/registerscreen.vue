@@ -5,8 +5,8 @@
         <img src="/img/logo.png" alt="" class="shadow-2xl w-[370px] h-[370px] absolute bottom-110 left-8 z-20" />
         <div class="w-[700px] h-auto bg-white/45 rounded-[70px] shadow-2xl relative z-20 p-5">
             <div class="w-full h-full flex flex-col items-center gap-4 ">
-                <h1 class="text-4xl font-bold text-[#ffffff] text-shadow-2xl">Register</h1>
-                <h2 class="text-lg text-[#ffffff]">Register to start your movie journey!</h2>
+                <h1 class="text-4xl font-bold text-[#ffffff] text-shadow-2xl">สมัครสมาชิก</h1>
+                <h2 class="text-lg text-[#ffffff]">สมัครสมาชิกเพื่อเริ่มต้นการเดินทางในโลกภาพยนตร์ของคุณ!</h2>
                 <div
                     class="w-[500px] h-[50px] flex items-center bg-white/50 backdrop-blur-md border border-gray-300 rounded-4xl px-3">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 512 512"
@@ -14,7 +14,7 @@
                         <path fill="currentColor" fill-rule="evenodd"
                             d="M256 42.667A213.333 213.333 0 0 1 469.334 256c0 117.821-95.513 213.334-213.334 213.334c-117.82 0-213.333-95.513-213.333-213.334C42.667 138.18 138.18 42.667 256 42.667m21.334 234.667h-42.667c-52.815 0-98.158 31.987-117.715 77.648c30.944 43.391 81.692 71.685 139.048 71.685s108.104-28.294 139.049-71.688c-19.557-45.658-64.9-77.645-117.715-77.645M256 106.667c-35.346 0-64 28.654-64 64s28.654 64 64 64s64-28.654 64-64s-28.653-64-64-64" />
                     </svg>
-                    <input type="text" placeholder="Name" v-model="form.name"
+                    <input type="text" placeholder="ชื่อผู้ใช้" v-model="form.name"
                         class="flex-1 p-3 bg-transparent focus:outline-none text-[#ffffff] font-extrabold text-shadow-2xl" />
 
                 </div>
@@ -25,22 +25,65 @@
                         <path fill="currentColor" fill-rule="evenodd"
                             d="m7.172 11.334l2.83 1.935l2.728-1.882l6.115 6.033q-.242.079-.512.08H1.667c-.22 0-.43-.043-.623-.12zM20 6.376v9.457c0 .247-.054.481-.15.692l-5.994-5.914zM0 6.429l6.042 4.132l-5.936 5.858A1.7 1.7 0 0 1 0 15.833zM18.333 2.5c.92 0 1.667.746 1.667 1.667v.586L9.998 11.648L0 4.81v-.643C0 3.247.746 2.5 1.667 2.5z" />
                     </svg>
-                    <input type="text" placeholder="Email" v-model="form.email"
+                    <input type="text" placeholder="อีเมล" v-model="form.email"
                         class="flex-1 p-3 bg-transparent focus:outline-none text-[#ffffff] font-extrabold text-shadow-2xl" />
                 </div>
 
                 <div @click=gendercheck class="flex  text-white w-[500px] h-auto gap-[100px] ml-6">
                     <label class="flex items-center gap-2 font-bold">
                         <input type="radio" name="gender" value="1" v-model="form.gender"
-                            class="accent-[#90CB38] w-5 h-5"> Male
+                            class="accent-[#90CB38] w-5 h-5"> ชาย
                     </label>
 
                     <label @click=gendercheck class="flex items-center gap-2 font-bold">
                         <input type="radio" name="gender" value="2" v-model="form.gender"
                             class="accent-[#90CB38] w-5 h-5">
-                        Female
+                    หญิง
+                    </label>
+                     <label @click=gendercheck class="flex items-center gap-2 font-bold">
+                        <input type="radio" name="gender" value="3" v-model="form.gender"
+                            class="accent-[#90CB38] w-5 h-5">
+                        อื่นๆ
                     </label>
                 </div>
+                <!-- วันเดือนปีเกิด -->
+                <div class="w-[500px] h-[50px] flex items-center bg-white/50 backdrop-blur-md
+         border border-gray-300 rounded-4xl px-3">
+
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                        class="ml-2.5 text-[#737373]">
+                        <path fill="currentColor" d="M7 10h5v5H7zm7 0h3v5h-3zM7 3v2H5a2 2 0 0 0-2 2v12a2
+         2 0 0 0 2 2h14a2 2 0 0 0 2-2V7a2
+         2 0 0 0-2-2h-2V3h-2v2H9V3zm12
+         16H5V9h14z" />
+                    </svg>
+
+                    <input type="date" v-model="form.birthdate" class="flex-1 p-3 bg-transparent focus:outline-none
+           text-[#ffffff] font-extrabold text-shadow-2xl" />
+                </div>
+                <!-- อายุ  -->
+<div
+  class="w-[500px] h-[50px] flex items-center bg-white/40 backdrop-blur-md
+         border border-gray-300 rounded-4xl px-3 opacity-80">
+
+  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+       viewBox="0 0 24 24" class="ml-2.5 text-[#737373]">
+    <path fill="currentColor"
+      d="M12 2a10 10 0 1 0 10 10A10.01
+         10.01 0 0 0 12 2m1 15h-2v-6h2zm0-8h-2V7h2z"/>
+  </svg>
+
+  <input
+    type="text"
+    :value="age ? `${age} ปี` : ''"
+    disabled
+    placeholder="อายุ"
+    class="flex-1 p-3 bg-transparent focus:outline-none
+           text-[#ffffff] font-extrabold text-shadow-2xl cursor-not-allowed"
+  />
+</div>
+
+
 
 
 
@@ -55,12 +98,12 @@
                                 d="M208 80h-32V56a48 48 0 0 0-96 0v24H48a16 16 0 0 0-16 16v112a16 16 0 0 0 16 16h160a16 16 0 0 0 16-16V96a16 16 0 0 0-16-16m-72 78.63V184a8 8 0 0 1-16 0v-25.37a24 24 0 1 1 16 0M160 80H96V56a32 32 0 0 1 64 0Z" />
                         </svg>
 
-                        <input :type="showPassword ? 'text' : 'password'" placeholder="Password" v-model="form.password"
+                        <input :type="showPassword ? 'text' : 'password'" placeholder="รหัสผ่าน" v-model="form.password"
                             class="bg-transparent focus:outline-none text-white font-bold" />
 
                     </div>
 
-                    <!-- ไอคอนตา toggle -->
+                    <!-- ไอคอนตา -->
                     <div @click="togglePassword" class="cursor-pointer">
                         <!-- ถ้า show อยู่ → ไอคอนตาเปิด -->
                         <svg v-if="showPassword" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -82,22 +125,17 @@
 
                 </div>
 
-               <button
-  type="button"
-  :disabled="loading"
-  class="w-[500px] h-[45px] bg-[#A0E13E] text-white rounded-[70px]
+                <button type="button" :disabled="loading" class="w-[500px] h-[45px] bg-[#A0E13E] text-white rounded-[70px]
          font-bold shadow-2xl cursor-pointer
-         disabled:opacity-50 disabled:cursor-not-allowed"
-  @click="gototag"
->
-  {{ loading ? 'Loading...' : 'Continue' }}
-</button>
+         disabled:opacity-50 disabled:cursor-not-allowed" @click="gototag">
+                    {{ loading ? 'กำลังโหลด...' : 'ถัดไป' }}
+                </button>
 
 
 
                 <div class="flex gap-4">
-                    <p class="text-[#ffffff] text-shadow-2xl">You Haven’t any account?</p> <span
-                        class="text-[#A0E13E] cursor-pointer ">Sign Up</span>
+                    <p class="text-[#ffffff] text-shadow-2xl">มีบัญชีอยู่แล้วใช่ไหม?</p> <span
+                        class="text-[#A0E13E] cursor-pointer ">เข้าสู่ระบบ</span>
 
                 </div>
 
@@ -112,26 +150,53 @@
 <script setup>
 definePageMeta({ layout: "login" })
 
+import { ref, watch } from 'vue'
 
-import { ref } from 'vue'
-
-const showPassword = ref(false)
-const togglePassword = () => {
-    showPassword.value = !showPassword.value
-}
-
-// ฟอร์ม register
+// ✅ 1. form ต้องมาก่อน
 const form = ref({
-    name: '',
-    email: '',
-    password: '',
-    gender: ''
+  name: '',
+  email: '',
+  password: '',
+  gender: '',
+  birthdate: '',
+  age: null
 })
 
+// ✅ 2. age
+const age = ref(null)
+
+// ✅ 3. watch birthdate
+watch(() => form.value.birthdate, (newDate) => {
+  if (!newDate) {
+    age.value = null
+    form.value.age = null
+    return
+  }
+
+  const today = new Date()
+  const birth = new Date(newDate)
+
+  let years = today.getFullYear() - birth.getFullYear()
+  const m = today.getMonth() - birth.getMonth()
+
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+    years--
+  }
+
+  age.value = years
+  form.value.age = years // ✅ ส่งเข้า form ด้วย
+})
+
+// password toggle
+const showPassword = ref(false)
+const togglePassword = () => {
+  showPassword.value = !showPassword.value
+}
+
+// register
 const loading = ref(false)
 const errorMsg = ref('')
 
-// กด Continue
 const gototag = async () => {
   if (loading.value) return
   loading.value = true
@@ -142,9 +207,6 @@ const gototag = async () => {
       body: form.value
     })
 
-    console.log('REGISTER RES =', res)
-
-    // ✅ ถ้าได้ userId = ถือว่าสมัครสำเร็จ
     if (res.userId) {
       navigateTo(`/tagRegis?userId=${res.userId}`)
       return
@@ -158,9 +220,8 @@ const gototag = async () => {
     loading.value = false
   }
 }
-
-
 </script>
+
 
 
 <style></style>

@@ -7,14 +7,14 @@
                 <path fill="currentColor"
                     d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10s-4.477 10-10 10m-1-7v2h2v-2zm2-1.645A3.502 3.502 0 0 0 12 6.5a3.5 3.5 0 0 0-3.433 2.813l1.962.393A1.5 1.5 0 1 1 12 11.5a1 1 0 0 0-1 1V14h2z" />
             </svg>
-            <p class="text-[#000000] font-bold text-[18px]">Are you sure you want to Log out your account?</p>
+            <p class="text-[#000000] font-bold text-[18px]">คุณแน่ใจใช่ไหมว่าต้องการออกจากระบบ ?</p>
             <div class="flex gap-4 mt-2 ">
                 <button
                 @click="$emit('close')"
-                    class="w-[136px] h-10 rounded-[20px] text-[#FF0000] font-bold border-2 border-[#FF0000] hover:text-[#FFffff] hover:bg-[#ff0000] cursor-pointer">cancel</button>
+                    class="w-[136px] h-10 rounded-[20px] text-[#FF0000] font-bold border-2 border-[#FF0000] hover:text-[#FFffff] hover:bg-[#ff0000] cursor-pointer">ยกเลิก</button>
                 <button
-                @click="handleLogout"
-                    class="w-[136px] h-10 rounded-[20px] text-[#ffffff] font-bold bg-[#A0E13E] hover:bg-[#7fbb32] cursor-pointer">confirm</button>
+                @click="logout"
+                    class="w-[136px] h-10 rounded-[20px] text-[#ffffff] font-bold bg-[#A0E13E] hover:bg-[#7fbb32] cursor-pointer">ยืนยัน</button>
 
             </div>
         </div>
@@ -23,7 +23,15 @@
 </template>
 <script setup>
 
-const handleLogout =() =>{
-    navigateTo('/logInscreen')
+
+const logout = async () => {
+  await $fetch('/api/logout', {
+    method: 'POST',
+    credentials: 'include'
+  })
+
+  
+  navigateTo('/logInscreen')
 }
+
 </script>
