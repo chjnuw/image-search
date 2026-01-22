@@ -11,9 +11,9 @@
     >
       <div class="w-full h-full flex flex-col items-center gap-4">
         <h1 class="text-4xl font-bold text-[#ffffff] text-shadow-2xl">
-          Log In
+          เข้าสู่ระบบ
         </h1>
-        <h2 class="text-lg text-[#ffffff]">Welcome Back, You’ve Been Missed</h2>
+        <h2 class="text-lg text-[#ffffff]">ยินดีต้อนรับกลับมา,พวกเราคิดถึงคุณ</h2>
         <div
           class="w-[500px] h-[50px] flex items-center bg-white/50 backdrop-blur-md border border-gray-300 rounded-4xl px-3"
         >
@@ -31,9 +31,9 @@
             /></svg
           ><input
             type="text"
-            placeholder="Email"
+            placeholder="อีเมล"
             v-model="form.email"
-            class="flex-1 p-3 bg-transparent focus:outline-none text-[#ffffff] font-extrabold text-shadow-2xl"
+            class="flex-1 p-3 bg-transparent focus:outline-none text-[#000000] font-extrabold text-shadow-2xl"
           />
         </div>
         <div
@@ -56,9 +56,9 @@
 
             <input
               :type="showPassword ? 'text' : 'password'"
-              placeholder="Password"
+              placeholder="รหัสผ่าน"
               v-model="form.password"
-              class="bg-transparent focus:outline-none text-white font-bold"
+              class="bg-transparent focus:outline-none text-black font-bold"
             />
           </div>
 
@@ -123,14 +123,14 @@
               </svg>
             </div>
 
-            <span class="text-white">Remember me</span>
+            <span class="text-white">จดจำฉัน</span>
           </label>
 
           <span
             class="text-white underline cursor-pointer hover:text-[#A0E13E]"
             @click="handlepassword"
           >
-            Forgot Password?
+            ลืมรหัสผ่าน?
           </span>
         </div>
 
@@ -138,13 +138,13 @@
           class="w-[500px] h-[45px] bg-[#A0E13E] text-[#ffffff] text-shadow-2xl rounded-[70px] font-bold shadow-2xl cursor-pointer hover:bg-[#80b432]"
           @click="handleToHomepage"
         >
-          Log In
+         เข้าสู่ระบบ
         </button>
 
         <div class="flex gap-4">
-          <p class="text-[#ffffff] text-shadow-2xl">You Haven’t any account?</p>
+          <p class="text-[#ffffff] text-shadow-2xl">ยังไม่มีบัญชีใช่ไหม ?</p>
           <span class="text-[#A0E13E] cursor-pointer" @click="handleRegister"
-            >Register</span
+            >สมัครบัญชี</span
           >
           <p v-if="errorMsg" class="text-red-500">
             {{ errorMsg }}

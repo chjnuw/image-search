@@ -135,7 +135,7 @@
 
                 <div class="flex gap-4">
                     <p class="text-[#ffffff] text-shadow-2xl">มีบัญชีอยู่แล้วใช่ไหม?</p> <span
-                        class="text-[#A0E13E] cursor-pointer ">เข้าสู่ระบบ</span>
+                        class="text-[#A0E13E] cursor-pointer " @click="gotoLogin">เข้าสู่ระบบ</span>
 
                 </div>
 
@@ -219,6 +219,9 @@ const gototag = async () => {
   } finally {
     loading.value = false
   }
+}
+const gotoLogin = () => {
+    navigateTo("/logInscreen")
 }
 </script>
 

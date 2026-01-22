@@ -1,50 +1,30 @@
 <template>
-  <transition
-    name="popup-fade"
-    appear
-    enter-active-class="duration-300 ease-out"
-    leave-active-class="duration-200 ease-in"
-  >
-    <div
-      v-if="selectedId && selectedItem"
-      class="fixed inset-0 flex items-center justify-center z-50 min-h-screen bg-black/50 backdrop-blur-sm"
-    >
+  <transition name="popup-fade" appear enter-active-class="duration-300 ease-out"
+    leave-active-class="duration-200 ease-in">
+    <div v-if="selectedId && selectedItem"
+      class="fixed inset-0 flex items-center justify-center z-50 min-h-screen bg-black/50 backdrop-blur-sm">
       <transition name="popup-swap" mode="out-in">
         <MoviePopupSkeleton v-if="isLoading" />
-        <div
-          v-else
-          ref="popupScroll"
-          class="rounded-2xl w-[65%] h-[80%] overflow-y-auto overflow-x-hidden grid grid-cols-4 custom-scrollbar"
-        >
+        <div v-else ref="popupScroll"
+          class="rounded-2xl w-[65%] h-[80%] overflow-y-auto overflow-x-hidden grid grid-cols-4 custom-scrollbar">
           <!-- =========================================================================================================== -->
           <!-- sidebar -->
           <!-- ==========================================================================================================  -->
-          <div
-            class="col-span-1 bg-[#000000] p-4 text-white flex flex-col items-center"
-          >
-            <img
-              :src="selectedItem.poster"
-              loading="lazy"
-              class="rounded-xl aspect-[2/3] w-64 border-2 object-cover"
-            />
+          <div class="col-span-1 bg-[#000000] p-4 text-white flex flex-col items-center">
+            <img :src="selectedItem.poster" loading="lazy" class="rounded-xl aspect-[2/3] w-64 border-2 object-cover" />
             <div class="text-center mt-4 mb-2">
               <p class="w-full text-2xl font-bold text-center">
                 {{ selectedItem.titleEN }}
               </p>
-              <p
-                v-if="selectedItem.titleEN !== selectedItem.title"
-                class="text-sm text-gray-400 mt-2"
-              >
+              <p v-if="selectedItem.titleEN !== selectedItem.title" class="text-sm text-gray-400 mt-2">
                 {{ selectedItem.title }}
               </p>
             </div>
             <div class="p-2 items-center justify-center mb-3">
               <div class="flex items-center justify-center gap-2 text-sm">
-                <span
-                  v-if="selectedItem?.ageRating"
+                <span v-if="selectedItem?.ageRating"
                   class="px-2 py-1 border rounded-md font-bold backdrop-blur-md text-xs"
-                  :class="normalizeAgeRating(selectedItem.ageRating).class"
-                >
+                  :class="normalizeAgeRating(selectedItem.ageRating).class">
                   {{ normalizeAgeRating(selectedItem.ageRating).label }}
                 </span>
                 <span>·</span>
@@ -55,11 +35,8 @@
               </div>
 
               <div class="flex flex-wrap gap-1 my-4 p-2">
-                <button
-                  v-for="tag in selectedItem.tags"
-                  :key="tag.id"
-                  class="p-2 bg-gray-700 rounded-md hover:bg-gray-800 transition cursor-pointer text-xs"
-                >
+                <button v-for="tag in selectedItem.tags" :key="tag.id"
+                  class="p-2 bg-gray-700 rounded-md hover:bg-gray-800 transition cursor-pointer text-xs">
                   # {{ tag.name }}
                 </button>
               </div>
@@ -107,15 +84,9 @@
 
               <div class="mb-3">
                 <p class="text-gray-400 text-md">คำค้นหา</p>
-                <div
-                  v-if="selectedItem.keywords?.length"
-                  class="flex flex-wrap gap-1 p-2"
-                >
-                  <button
-                    v-for="k in selectedItem.keywords"
-                    :key="k.id"
-                    class="p-2 bg-gray-700 rounded-md text-xs hover:bg-gray-800 transition cursor-pointer"
-                  >
+                <div v-if="selectedItem.keywords?.length" class="flex flex-wrap gap-1 p-2">
+                  <button v-for="k in selectedItem.keywords" :key="k.id"
+                    class="p-2 bg-gray-700 rounded-md text-xs hover:bg-gray-800 transition cursor-pointer">
                     # {{ k.name }}
                   </button>
                 </div>
@@ -124,18 +95,11 @@
                 </p>
               </div>
             </div>
-            <div
-              class="w-40 aspect-[2/3] bg-white rounded-2xl flex flex-col mt-3"
-            >
-              <img
-                :src="
-                  director?.profile_path
-                    ? 'https://image.tmdb.org/t/p/w300' + director.profile_path
-                    : 'img/no-profile.png'
-                "
-                loading="lazy"
-                class="w-full h-full object-contain rounded-2xl"
-              />
+            <div class="w-40 aspect-[2/3] bg-white rounded-2xl flex flex-col mt-3">
+              <img :src="director?.profile_path
+                ? 'https://image.tmdb.org/t/p/w300' + director.profile_path
+                : 'img/no-profile.png'
+                " loading="lazy" class="w-full h-full object-contain rounded-2xl" />
               <div class="text-center text-black p-2">
                 <h2 class="font-bold text-md">Director</h2>
                 <p class="text-sm">{{ director?.name || "-" }}</p>
@@ -146,112 +110,66 @@
           <!-- =========================================================================================================== -->
           <!-- main -->
           <!-- ==========================================================================================================  -->
-          <div
-            class="bg-[#0B0A0A] text-white col-span-3 flex flex-col items-center"
-          >
+          <div class="bg-[#0B0A0A] text-white col-span-3 flex flex-col items-center">
             <div class="relative w-full aspect-video">
-              <iframe
-                v-if="isTrailerActive && trailer"
-                :src="trailer"
-                class="w-full h-full rounded-xl"
-                allow="autoplay; encrypted-media"
-                allowfullscreen
-              />
-              <img
-                v-else
-                :src="currentImage"
-                class="w-full h-full object-contain"
-              />
+              <iframe v-if="isTrailerActive && trailer" :src="trailer" class="w-full h-full rounded-xl"
+                allow="autoplay; encrypted-media" allowfullscreen />
+              <img v-else :src="currentImage" class="w-full h-full object-contain" />
               <div
-                class="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-black/100 to-transparent pointer-events-none"
-              ></div>
+                class="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-black/100 to-transparent pointer-events-none">
+              </div>
               <div
-                class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_40%,rgba(0,0,0,0.6)_100%)] pointer-events-none"
-              ></div>
+                class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_40%,rgba(0,0,0,0.6)_100%)] pointer-events-none">
+              </div>
               <button
                 class="fixed top-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full cursor-pointer text-white/70 hover:text-white transition duration-200"
-                @click="$emit('close')"
-              >
+                @click="$emit('close')">
                 <FontAwesomeIcon icon="fa-solid fa-xmark" />
               </button>
             </div>
 
             <div class="relative group/thumb mb-4 w-full">
-              <div
-                ref="thumbContainer"
-                class="w-full overflow-x-auto custom-scrollbar p-3 flex gap-2"
-                style="overflow-anchor: none"
-              >
-                <div
-                  v-if="hasTrailer"
-                  ref="trailerThumbRef"
-                  class="flex-shrink-0 h-20 w-36 cursor-pointer relative"
-                  :class="
-                    isTrailerActive ? 'border-green-500' : 'border-transparent'
-                  "
-                  @click="
-                    isTrailerActive = true;
+              <div ref="thumbContainer" class="w-full overflow-x-auto custom-scrollbar p-3 flex gap-2"
+                style="overflow-anchor: none">
+                <div v-if="hasTrailer" ref="trailerThumbRef" class="flex-shrink-0 h-20 w-36 cursor-pointer relative"
+                  :class="isTrailerActive ? 'border-green-500' : 'border-transparent'
+                    " @click="
+                      isTrailerActive = true;
                     stopAutoTemporarily();
-                  "
-                  currentIndex="0;"
-                >
+                    " currentIndex="0;">
                   <img :src="trailerThumb" class="w-full h-full object-cover" />
-                  <div
-                    class="absolute inset-0 flex items-center justify-center bg-black/30"
-                  >
-                    <FontAwesomeIcon
-                      icon="fa-solid fa-play"
-                      class="text-white text-2xl"
-                    />
+                  <div class="absolute inset-0 flex items-center justify-center bg-black/30">
+                    <FontAwesomeIcon icon="fa-solid fa-play" class="text-white text-2xl" />
                   </div>
-                  <p
-                    v-if="!hasTrailer"
-                    class="absolute bottom-2 right-2 text-xs text-white/60 bg-black/40 px-2 py-1 rounded"
-                  >
+                  <p v-if="!hasTrailer"
+                    class="absolute bottom-2 right-2 text-xs text-white/60 bg-black/40 px-2 py-1 rounded">
                     ไม่มีตัวอย่างหนัง
                   </p>
                 </div>
-                <div
-                  v-for="img in filteredImages"
-                  :key="img"
-                  loading="lazy"
-                  class="flex-shrink-0 h-20 cursor-pointer"
+                <div v-for="img in filteredImages" :key="img" loading="lazy" class="flex-shrink-0 h-20 cursor-pointer"
                   :class="{
                     'border-4 border-green-500':
                       currentImage === img && !isTrailerActive,
-                  }"
-                  @click="
+                  }" @click="
                     isTrailerActive = false;
-                    currentImage = img;
-                    currentIndex = carouselItems.indexOf(img);
-                    stopAutoTemporarily();
-                  "
-                  :ref="(el) => (thumbRefs[img] = el)"
-                >
-                  <img
-                    :src="img"
-                    class="h-full object-contain"
-                    loading="lazy"
-                  />
+                  currentImage = img;
+                  currentIndex = carouselItems.indexOf(img);
+                  stopAutoTemporarily();
+                  " :ref="(el) => (thumbRefs[img] = el)">
+                  <img :src="img" class="h-full object-contain" loading="lazy" />
                 </div>
               </div>
-              <div
-                class="flex absolute top-1/2 -translate-y-1/2 left-0 w-auto px-2"
-              >
+              <div class="flex absolute top-1/2 -translate-y-1/2 left-0 w-auto px-2">
                 <button
                   class="text-white text-lg p-2 bg-black/30 hover:bg-gray-700 rounded-full group-hover/thumb:cursor-pointer opacity-0 -translate-x-6 transition-all duration-500 group-hover/thumb:translate-x-0 group-hover/thumb:opacity-100"
-                  @click="prevSlide"
-                >
+                  @click="prevSlide">
                   <FontAwesomeIcon icon="fa-solid fa-arrow-left" />
                 </button>
               </div>
-              <div
-                class="flex absolute top-1/2 -translate-y-1/2 right-0 w-auto px-2"
-              >
+              <div class="flex absolute top-1/2 -translate-y-1/2 right-0 w-auto px-2">
                 <button
                   class="text-white text-lg p-2 bg-black/30 hover:bg-gray-700 rounded-full group-hover/thumb:cursor-pointer opacity-0 translate-x-6 transition-all duration-500 group-hover/thumb:translate-x-0 group-hover/thumb:opacity-100"
-                  @click="nextSlide"
-                >
+                  @click="nextSlide">
                   <FontAwesomeIcon icon="fa-solid fa-arrow-right" />
                 </button>
               </div>
@@ -266,16 +184,17 @@
                   <p class="text-gray-400 text-sm">
                     ({{ selectedItem.vote_count ?? 0 }} รีวิว)
                   </p>
-                  <FontAwesomeIcon
-                    icon="fa-solid fa-heart"
-                    class="hover:text-pink-500 text-2xl cursor-pointer p-2"
-                    @click="Favorite"
-                  />
+                  <!-- btn fav -->
+
+                  <FontAwesomeIcon icon="fa-solid fa-heart" :class="[
+                    'text-2xl cursor-pointer p-2 transition-colors',
+                    isFavorite ? 'text-pink-500' : 'text-white hover:text-pink-500'
+                  ]" @click="handleToggleFavorite" />
+
+
                 </div>
                 <div class="flex gap-4 items-center">
-                  <a
-                    class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-full text-white transition"
-                  >
+                  <a class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-full text-white transition">
                     รับชมได้ที่
                   </a>
                 </div>
@@ -286,29 +205,16 @@
               </p>
 
               <h2 class="font-bold text-2xl mt-4 mb-2">นักแสดง</h2>
-              <div
-                v-if="actors.length"
-                class="flex gap-3 overflow-x-auto custom-scrollbar p-4"
-              >
-                <ImgNameAct
-                  v-for="a in filteredActors"
-                  :key="a.id"
-                  :img="a.profile"
-                  :name="a.name"
-                  :character="a.character"
-                  loading="lazy"
-                  class="border"
-                />
-                <div
-                  class="flex justify-center items-center ml-4 w-32 flex-shrink-0"
-                >
+              <div v-if="actors.length" class="flex gap-3 overflow-x-auto custom-scrollbar p-4">
+                <ImgNameAct v-for="a in filteredActors" :key="a.id" :img="a.profile" :name="a.name"
+                  :character="a.character" loading="lazy" class="border" />
+                <div class="flex justify-center items-center ml-4 w-32 flex-shrink-0">
                   <button
-                    class="hover:bg-gray-600 p-4 rounded-full flex flex-col items-center text-green-500 cursor-pointer"
-                  >
+                    class="hover:bg-gray-600 p-4 rounded-full flex flex-col items-center text-green-500 cursor-pointer">
                     <h1 class="text-center text-sm sm:text-base">
-                      Sell All<br /><span
-                        ><FontAwesomeIcon icon="fa-solid fa-arrow-right"
-                      /></span>
+                      Sell All<br /><span>
+                        <FontAwesomeIcon icon="fa-solid fa-arrow-right" />
+                      </span>
                     </h1>
                   </button>
                 </div>
@@ -318,30 +224,17 @@
               </p>
 
               <h2 class="font-bold text-2xl mt-4 mb-2">ทีมงาน</h2>
-              <div
-                v-if="crew.length"
-                class="flex gap-3 overflow-x-auto custom-scrollbar p-4"
-              >
-                <ImgNameCrew
-                  v-for="c in filteredCrew"
-                  :key="c.id"
-                  :img="c.profile"
-                  :name="c.name"
-                  :job="c.job"
-                  loading="lazy"
-                  class="border"
-                />
+              <div v-if="crew.length" class="flex gap-3 overflow-x-auto custom-scrollbar p-4">
+                <ImgNameCrew v-for="c in filteredCrew" :key="c.id" :img="c.profile" :name="c.name" :job="c.job"
+                  loading="lazy" class="border" />
 
-                <div
-                  class="flex justify-center items-center ml-4 w-32 flex-shrink-0"
-                >
+                <div class="flex justify-center items-center ml-4 w-32 flex-shrink-0">
                   <button
-                    class="hover:bg-gray-600 p-4 rounded-full flex flex-col items-center text-green-500 cursor-pointer"
-                  >
+                    class="hover:bg-gray-600 p-4 rounded-full flex flex-col items-center text-green-500 cursor-pointer">
                     <h1 class="text-center text-sm sm:text-base">
-                      Sell All<br /><span
-                        ><FontAwesomeIcon icon="fa-solid fa-arrow-right"
-                      /></span>
+                      Sell All<br /><span>
+                        <FontAwesomeIcon icon="fa-solid fa-arrow-right" />
+                      </span>
                     </h1>
                   </button>
                 </div>
@@ -352,17 +245,9 @@
 
               <div v-if="similarMovies.length" class="w-full mt-6">
                 <h2 class="text-2xl font-bold mt-4 mb-2">หนังที่คล้ายกัน</h2>
-                <div
-                  class="flex gap-2 overflow-x-auto overflow-y-hidden custom-scrollbar p-4 border"
-                >
-                  <CardM
-                    v-for="m in similarMovies"
-                    :key="m.id"
-                    :movie="m"
-                    loading="lazy"
-                    class="w-28 flex-shrink-0"
-                    @click="loadData(m.id)"
-                  />
+                <div class="flex gap-2 overflow-x-auto overflow-y-hidden custom-scrollbar p-4 border">
+                  <CardM v-for="m in similarMovies" :key="m.id" :movie="m" loading="lazy" class="w-28 flex-shrink-0"
+                    @click="loadData(m.id)" />
                 </div>
               </div>
               <div class="w-full mt-6">
@@ -371,11 +256,7 @@
                 </h2>
 
                 <div class="flex gap-2 overflow-hidden">
-                  <Recomment
-                    loading="lazy"
-                    class="flex overflow-x-auto custom-scrollbar"
-                    @click="loadData(id)"
-                  />
+                  <Recomment loading="lazy" class="flex overflow-x-auto custom-scrollbar" @click="loadData(id)" />
                 </div>
               </div>
             </div>
@@ -444,6 +325,40 @@ const currentMovieId = ref<number | null>(null);
 const isChanging = ref(false);
 const popupScroll = ref<HTMLElement | null>(null);
 const { start, stop } = useGlobalLoading();
+const isFavorite = ref(false)
+
+const handleToggleFavorite = async () => {
+  if (!selectedItem.value) return
+
+  try {
+    if (isFavorite.value) {
+      await $fetch("/api/favorite", {
+        method: "DELETE",
+        body: { movieId: selectedItem.value.id },
+        credentials: "include",
+      })
+
+      isFavorite.value = false
+      alert("ลบออกจากรายการโปรดแล้ว 💔")
+    } else {
+      await $fetch("/api/favorite", {
+        method: "POST",
+        body: { movieId: selectedItem.value.id },
+        credentials: "include",
+      })
+
+      isFavorite.value = true
+      alert("เพิ่มเข้ารายการโปรดแล้ว ❤️")
+    }
+  } catch (err) {
+    console.error(err)
+    alert("กรุณาเข้าสู่ระบบ")
+  }
+}
+// alias ป้องกัน Vue warn 
+const onToggleFavorite = handleToggleFavorite
+
+
 
 // computed
 const filteredImages = computed(() => {
@@ -456,6 +371,33 @@ const filteredActors = computed(() => {
 const filteredCrew = computed(() => {
   return showAllCrew.value ? crew.value : crew.value.slice(0, 10);
 });
+
+const checkFavorite = async (movieId: number) => {
+  try {
+    const favs = await $fetch<{ movie_id: number }[]>(
+      "/api/favorite",
+      { credentials: "include" }
+    )
+    isFavorite.value = favs.some(f => f.movie_id === movieId)
+  } catch {
+    isFavorite.value = false
+  }
+}
+
+async function checkIsFavorite(id: number) {
+  try {
+    const res = await $fetch("/api/favorite/check", {
+      method: "POST",
+      body: { movieId: id },
+      credentials: "include",
+    })
+    return res?.isFavorite === true
+  } catch {
+    return false
+  }
+}
+
+
 
 function formatRuntime(mins: number) {
   const h = Math.floor(mins / 60);
@@ -501,6 +443,8 @@ async function loadData(id: number) {
     revenue: movieTH.revenue,
     keywords: keywords?.keywords ?? [],
   };
+  await checkFavorite(id)
+
 
   // images / credits / recommend
   const [imgs, creditTH, creditEN, similar, recommend] = await Promise.all([
@@ -759,18 +703,23 @@ onUnmounted(() => {
 .popup-fade-enter-from {
   opacity: 0;
 }
+
 .popup-fade-enter-to {
   opacity: 1;
 }
+
 .popup-fade-leave-from {
   opacity: 1;
 }
+
 .popup-fade-leave-to {
   opacity: 0;
 }
+
 img {
   transition: opacity 0.3s ease;
 }
+
 .popup-swap-enter-active,
 .popup-swap-leave-active {
   transition: all 0.35s ease;

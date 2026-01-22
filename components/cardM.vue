@@ -7,26 +7,30 @@
     @mousemove="onMove"
   >
     <img
-      :src="
-        props.movie.poster_path
-          ? 'https://image.tmdb.org/t/p/w500' + props.movie.poster_path
-          : fallback
-      "
+      :src="posterSrc"
       @error="onError"
       class="aspect-[2/3] object-cover w-full h-full rounded"
       @click="emit('open', props.movie.id)"
     />
+
+    <!-- ปุ่ม favorite -->
     <span
-      class="text-md absolute top-1 right-1 z-10 drop-shadow-xl/50 p-1 opacity-0 scale-90 transition-all duration-300 group-hover:opacity-100 group-hover:scale-100"
-      @click.stop
+      class="text-md absolute top-1 right-1 z-10 drop-shadow-xl/50 p-1
+             opacity-0 scale-90 transition-all duration-300
+             group-hover:opacity-100 group-hover:scale-100"
     >
       <FontAwesomeIcon
         icon="fa-solid fa-heart"
-        class="hover:text-pink-500"
-        @click="Favorite"
-    /></span>
+        :class="[
+          'transition-colors',
+          isFavorite ? 'text-pink-500' : 'text-white hover:text-pink-500'
+        ]"
+        @click.stop="toggleFavorite"
+      />
+    </span>
   </div>
 
+  <!-- hover popup -->
   <transition name="fade">
     <div
       v-if="isHover"
@@ -34,6 +38,7 @@
       :style="popupStyle"
     >
       <SkeletonCatagorySkeletonMovieHover v-if="isLoadingDetail" />
+
       <template v-else>
         <p class="font-bold text-md line-clamp-2">
           {{ displayTitle.main }}
@@ -53,7 +58,6 @@
           </span>
 
           <p>⭐ {{ props.movie.vote_average.toFixed(1) }}</p>
-
           <p class="text-xs text-gray-400">
             ({{ props.movie.vote_count ?? 0 }} รีวิว)
           </p>
@@ -67,7 +71,7 @@
           <button
             v-for="gid in props.movie.genre_ids ?? []"
             :key="gid"
-            class="px-2 py-1 bg-green-600/20 text-green-400 rounded-md transition text-xs"
+            class="px-2 py-1 bg-green-600/20 text-green-400 rounded-md text-xs"
           >
             # {{ genreMap[gid] }}
           </button>
@@ -82,115 +86,157 @@
 </template>
 
 <script setup lang="ts">
-import type { Movie } from "../Type/tmdb";
-import { ref, computed, watch, onMounted } from "vue";
-import { useTMDB } from "../composables/useTMDB";
-import { normalizeAgeRating } from "../utils/ageRating";
+import type { Movie } from "../Type/tmdb"
+import { ref, computed, onMounted } from "vue"
+import { useTMDB } from "../composables/useTMDB"
+import { normalizeAgeRating } from "../utils/ageRating"
 
-const { getMovieAgeRating, getMovieDetailsEN } = useTMDB();
-const ageRating = ref<string | null>(null);
-let ageFetched = false;
+const props = defineProps<{ movie: Movie }>()
 
-const tags = ref<{ id: number; name: string }[]>([]);
-let fetched = false;
-const isHover = ref(false);
-let hoverTimer: number | null = null;
+const emit = defineEmits<{
+  (e: "open", id: number): void
+  (e: "toggle-favorite", id: number): void
+  (e: "removed", id: number): void  
+}>()
 
-const isLoadingDetail = ref(false);
+/* ---------------- poster ---------------- */
+const fallback = "img/no-poster.png"
 
-const enTitle = ref<string | null>(null);
-let enFetched = false;
+const posterSrc = computed(() =>
+  props.movie.poster_path
+    ? "https://image.tmdb.org/t/p/w500" + props.movie.poster_path
+    : fallback
+)
+
+function onError(e: Event) {
+  ;(e.target as HTMLImageElement).src = fallback
+}
+
+/* ---------------- favorite (จัดการเอง) ---------------- */
+const isFavorite = ref(false)
+
+const loadFavoriteState = async () => {
+  try {
+    const favs = await $fetch<{ movie_id: number }[]>(
+      "/api/favorite",
+      { credentials: "include" }
+    )
+    isFavorite.value = favs.some(f => f.movie_id === props.movie.id)
+  } catch {
+    isFavorite.value = false
+  }
+}
+
+
+
+const toggleFavorite = async () => {
+  try {
+    if (isFavorite.value) {
+      await $fetch("/api/favorite", {
+        method: "DELETE",
+        body: { movieId: props.movie.id },
+        credentials: "include",
+      })
+
+      alert("ลบออกจากรายการโปรดแล้ว 💔")
+      emit("removed", props.movie.id)
+
+    } else {
+      await $fetch("/api/favorite", {
+        method: "POST",
+        body: { movieId: props.movie.id },
+        credentials: "include",
+      })
+
+      alert("เพิ่มเข้ารายการโปรดแล้ว ❤️")
+    }
+  } catch (err) {
+    console.error(err)
+    alert("กรุณาเข้าสู่ระบบ")
+  }
+}
+
+
+
+/* ---------------- hover detail ---------------- */
+const { getMovieAgeRating, getMovieDetailsEN } = useTMDB()
+
+const ageRating = ref<string | null>(null)
+const enTitle = ref<string | null>(null)
+
+const isHover = ref(false)
+const isLoadingDetail = ref(false)
+
+let hoverTimer: number | null = null
+let ageFetched = false
+let enFetched = false
 
 const onEnter = () => {
   hoverTimer = window.setTimeout(async () => {
-    isHover.value = true;
+    isHover.value = true
 
     if (!ageFetched || !enFetched) {
-      isLoadingDetail.value = true;
-
+      isLoadingDetail.value = true
       try {
         if (!ageFetched) {
-          ageRating.value = await getMovieAgeRating(props.movie.id);
-          ageFetched = true;
+          ageRating.value = await getMovieAgeRating(props.movie.id)
+          ageFetched = true
         }
-
         if (!enFetched) {
-          const enDetail = await getMovieDetailsEN(props.movie.id);
-          enTitle.value = enDetail?.title || props.movie.original_title || null;
-          enFetched = true;
+          const en = await getMovieDetailsEN(props.movie.id)
+          enTitle.value = en?.title || props.movie.original_title || null
+          enFetched = true
         }
-      } catch (e) {
-        enTitle.value = props.movie.original_title || null;
-        ageRating.value = "NR";
+      } catch {
+        ageRating.value = "NR"
+        enTitle.value = props.movie.original_title || null
       } finally {
-        isLoadingDetail.value = false;
+        isLoadingDetail.value = false
       }
     }
-  }, 1200);
-};
+  }, 1200)
+}
 
 const onLeave = () => {
-  if (hoverTimer) {
-    clearTimeout(hoverTimer);
-    hoverTimer = null;
-  }
-  isHover.value = false;
-  isLoadingDetail.value = false;
-};
+  if (hoverTimer) clearTimeout(hoverTimer)
+  isHover.value = false
+  isLoadingDetail.value = false
+}
 
-const mouseX = ref(0);
-const mouseY = ref(0);
+/* ---------------- mouse ---------------- */
+const mouseX = ref(0)
+const mouseY = ref(0)
 
 const onMove = (e: MouseEvent) => {
-  mouseX.value = e.clientX;
-  mouseY.value = e.clientY;
-};
+  mouseX.value = e.clientX
+  mouseY.value = e.clientY
+}
 
 const popupStyle = computed(() => {
-  const width = 230;
-  const padding = 16;
-
+  const width = 230
+  const padding = 16
   const x =
     mouseX.value + width + padding > window.innerWidth
       ? mouseX.value - width - padding
-      : mouseX.value + padding;
+      : mouseX.value + padding
 
   return {
     top: mouseY.value + padding + "px",
-    left: x + "px",
-  };
-});
+    left: x + "px"
+  }
+})
 
-const props = defineProps<{ movie: Movie }>();
-const emit = defineEmits(["open"]);
-function openPopup(id) {
-  document.body.style.cursor = "wait";
-  emit("open", id);
-}
-
-const fallback = "img/no-poster.png";
-
-function onError(event) {
-  event.target.src = fallback;
-}
-const Favorite = () => {
-  alert("Added to Favorite!");
-};
-
+/* ---------------- title ---------------- */
 const displayTitle = computed(() => {
-  const main = enTitle.value || null;
+  const main = enTitle.value
+  const th = props.movie.title
+  return {
+    main,
+    sub: th && main && th !== main ? th : null
+  }
+})
 
-const thTitle = props.movie.title;
-
-const sub =
-    thTitle &&
-    main &&
-    thTitle !== main
-      ? thTitle
-      : null;
-
-  return { main, sub };
-});
+onMounted(loadFavoriteState)
 </script>
 
 <style>
