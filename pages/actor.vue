@@ -7,15 +7,18 @@
       class="bg-[#0B0A0A] text-white h-full flex flex-wrap justify-center rounded-xl max-w-[80%] mx-auto mb-20 m-4"
     >
       <h2 class="font-bold text-4xl text-center mt-8">นักแสดง</h2>
+
       <section class="w-full p-4 justify-center mb-10">
-        <div class="flex w-full justify-center">
-          <div
+        <div class="flex w-full justify-center ">
+          <div 
+          @click="emit('click')"
             v-if="actors.length"
-            class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 px-4 pt-6 w-full max-w-[1400px] mx-auto "
+            class="grid grid-cols-2  sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 px-4 pt-6 w-full max-w-[1400px] mx-auto"
           >
             <CardAct
               v-for="actor in actors"
               :key="actor.id"
+              @click="openActorPopup(actor)"
               :img="
                 actor.profile_path
                   ? 'https://image.tmdb.org/t/p/w500' + actor.profile_path
@@ -24,10 +27,11 @@
               :name="actor.name"
               :gender="actor.gender"
               :department="actor.department"
-              class="border"
+              class="border cursor-pointer"
             />
           </div>
         </div>
+
         <div class="w-full flex justify-center mt-10">
           <button
             v-if="hasMore"
@@ -41,12 +45,33 @@
         </div>
       </section>
     </div>
+    <popupA
+      v-if="showPopup"
+      :actor="selectedActor"
+      @close="closePopup"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useTMDB } from "../composables/useTMDB";
+import popupA from "@/components/popupA.vue";
+
+const showPopup = ref(false);
+const selectedActor = ref<any>(null);
+  const emit = defineEmits(['click'])
+
+
+const openActorPopup = (actor: any) => {
+  selectedActor.value = actor;
+  showPopup.value = true;
+};
+
+const closePopup = () => {
+  showPopup.value = false;
+  selectedActor.value = null;
+};
 
 const { getPopularActorsEN } = useTMDB();
 
@@ -56,6 +81,8 @@ const loading = ref(false);
 const hasMore = ref(true);
 
 const loadActors = async () => {
+  loading.value = true;
+
   const res = await getPopularActorsEN(page.value);
   if (!res?.results?.length) {
     hasMore.value = false;
@@ -79,11 +106,13 @@ const loadActors = async () => {
       department: actor.known_for_department,
     }))
   );
+
   page.value++;
   loading.value = false;
 };
 
 onMounted(loadActors);
 </script>
+
 
 <style></style>
