@@ -30,6 +30,8 @@ const breadcrumbMap: Record<string, string> = {
   favoritescreen: "รายการโปรด",
   login: "เข้าสู่ระบบ",
   profile: "โปรไฟล์",
+  seemore: "ดูเพิ่มเติม",
+  search: "ค้นหา",
 };
 
 const rawCrumbs = computed(() => route.path.split("/").filter(Boolean));

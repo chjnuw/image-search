@@ -84,7 +84,10 @@
                 class="w-full"
               />
             </div>
-            <Streaming @update="onProviderChange" class="w-full my-4 flex-shrink-0" />
+            <Streaming
+              @update="onProviderChange"
+              class="w-full my-4 flex-shrink-0"
+            />
           </div>
         </div>
       </div>
@@ -144,11 +147,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, onUnmounted, unref, Ref, computed } from "vue";
+import { ref, onMounted, watch, onUnmounted, unref, computed } from "vue";
+import type { Ref } from "vue";
 import type { Movie, Genre } from "../Type/tmdb";
 import { useTMDB } from "../composables/useTMDB";
 import { useGlobalLoading } from "../composables/useGlobalLoading";
-
 
 const { start, stop } = useGlobalLoading();
 const {
@@ -274,7 +277,6 @@ onMounted(async () => {
   }
 });
 
-
 const selectedGenres = ref<number[]>([]);
 
 const onGenreChange = async (newGenres: number[]) => {
@@ -383,10 +385,9 @@ function updateMovies(sorted: Movie[] | Ref<Movie[]>) {
 }
 
 function handleSearchMovie(movie) {
-  selectedId.value = movie.id
-  showPopup.value = true
+  selectedId.value = movie.id;
+  showPopup.value = true;
 }
-
 </script>
 
 <style>

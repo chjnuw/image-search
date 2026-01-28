@@ -8,10 +8,11 @@
     >
       <h2 class="font-bold text-4xl text-center mt-8">นักแสดง</h2>
       <section class="w-full p-4 justify-center mb-10">
-        <div class="flex w-full justify-center">
+        <SkeletonCatagorySkeletonActor v-if="loading && !actors.length" />
+        <div v-else class="flex w-full justify-center">
           <div
             v-if="actors.length"
-            class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 px-4 pt-6 w-full max-w-[1400px] mx-auto "
+            class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 px-4 pt-6 w-full max-w-[1400px] mx-auto"
           >
             <CardAct
               v-for="actor in actors"
@@ -56,6 +57,9 @@ const loading = ref(false);
 const hasMore = ref(true);
 
 const loadActors = async () => {
+  if (loading.value) return;
+
+  loading.value = true;
   const res = await getPopularActorsEN(page.value);
   if (!res?.results?.length) {
     hasMore.value = false;

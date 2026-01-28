@@ -353,7 +353,7 @@
               <div v-if="similarMovies.length" class="w-full mt-6">
                 <h2 class="text-2xl font-bold mt-4 mb-2">หนังที่คล้ายกัน</h2>
                 <div
-                  class="flex gap-2 overflow-x-auto overflow-y-hidden custom-scrollbar p-4 border"
+                  class="flex gap-2 overflow-x-auto overflow-y-hidden custom-scrollbar p-4"
                 >
                   <CardM
                     v-for="m in similarMovies"

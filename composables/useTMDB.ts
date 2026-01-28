@@ -16,6 +16,7 @@ const BASE_URL = "https://api.themoviedb.org/3";
 export const useTMDB = () => {
   const { lang, region } = useLang();
   const config = useRuntimeConfig();
+  const apiBase = config.public.apiBase;
   const authHeaders = {
     accept: "application/json",
     Authorization: `Bearer ${config.public.TMDB_READ_TOKEN}`,
@@ -38,7 +39,7 @@ export const useTMDB = () => {
 
   const requestWithLang = async <T>(
     endpoint: string,
-    language: string
+    language: string,
   ): Promise<T | null> => {
     try {
       return await $fetch<T>(`${BASE_URL}${endpoint}`, {
@@ -72,25 +73,25 @@ export const useTMDB = () => {
     const en = await getMovieDetailsEN(id);
 
     return {
-    ...(en ?? {}),
-    ...(th ?? {}),
+      ...(en ?? {}),
+      ...(th ?? {}),
 
-    // ✅ แยกชื่อชัดเจน
-    title_en: en?.title || null,
-    title_th: th?.title || null,
+      // ✅ แยกชื่อชัดเจน
+      title_en: en?.title || null,
+      title_th: th?.title || null,
 
-    // ✅ content ใช้ TH ก่อน fallback EN
-    overview: th?.overview || en?.overview,
-    tagline: th?.tagline || en?.tagline,
+      // ✅ content ใช้ TH ก่อน fallback EN
+      overview: th?.overview || en?.overview,
+      tagline: th?.tagline || en?.tagline,
     };
   };
 
   const getMovieDetailsEN = async (id: number) =>
     requestWithLang<Movie>(`/movie/${id}`, "en-US");
 
-  const searchMovies = (query: string) =>
+  const searchMovies = (query: string, page = 1) =>
     request<TMDBResponse<Movie>>(
-      `/search/movie?query=${encodeURIComponent(query)}`
+      `/search/movie?query=${encodeURIComponent(query)}&page=${page}`,
     );
 
   const getGenres = () =>
@@ -99,7 +100,7 @@ export const useTMDB = () => {
   const getMoviesByGenres = (
     genreId: string,
     categoryKey: string,
-    page = 1
+    page = 1,
   ) => {
     let sortParam = "popularity.desc";
 
@@ -118,7 +119,7 @@ export const useTMDB = () => {
     }
 
     return request<TMDBResponse<Movie>>(
-      `/discover/movie?with_genres=${genreId}&sort_by=${sortParam}&page=${page}`
+      `/discover/movie?with_genres=${genreId}&sort_by=${sortParam}&page=${page}`,
     );
   };
 
@@ -130,7 +131,7 @@ export const useTMDB = () => {
         query: {
           watch_region: "TH",
         },
-      }
+      },
     );
 
   const getWatchProviders = async (region = "TH") => {
@@ -163,7 +164,7 @@ export const useTMDB = () => {
         {
           headers: authHeaders,
           query: { language },
-        }
+        },
       );
 
       // fallback ถ้าไม่มีผลลัพธ์และภาษาไม่ใช่ en-US
@@ -176,7 +177,7 @@ export const useTMDB = () => {
           {
             headers: authHeaders,
             query: { language: "en-US" },
-          }
+          },
         );
       }
 
@@ -198,22 +199,22 @@ export const useTMDB = () => {
 
     return request<TMDBResponse<Movie>>(
       `/discover/movie?with_genres=${genreIds.join(
-        ","
-      )}&sort_by=popularity.desc`
+        ",",
+      )}&sort_by=popularity.desc`,
     );
   };
 
   const getMovieKeywords = (id: number) =>
     requestWithLang<{ keywords: { id: number; name: string }[] }>(
       `/movie/${id}/keywords`,
-      "en-US"
+      "en-US",
     );
 
   async function discoverMoviesByProviders(
     providers: number[],
     genres: number[],
     sortBy = "popularity.desc",
-    page = 1
+    page = 1,
   ) {
     return await $fetch<TMDBResponse<Movie>>(`${BASE_URL}/discover/movie`, {
       headers: authHeaders,
@@ -246,7 +247,7 @@ export const useTMDB = () => {
       if (!block) return null;
 
       const cert = block.release_dates.find(
-        (d: any) => d.certification && d.certification.trim() !== ""
+        (d: any) => d.certification && d.certification.trim() !== "",
       );
 
       return cert?.certification || null;
@@ -289,7 +290,19 @@ export const useTMDB = () => {
     };
   };
 
-  
+  async function searchMovieByImage(file: File) {
+    const form = new FormData();
+    form.append("file", file);
+
+    const res = await fetch("http://127.0.0.1:8000/search-image", {
+      method: "POST",
+      body: form,
+    });
+
+    if (!res.ok) throw new Error("image search failed");
+
+    return await res.json(); // { movie_ids: number[] }
+  }
 
   return {
     getPopularMovies,
@@ -317,5 +330,6 @@ export const useTMDB = () => {
     getMovieAgeRating,
     getPopularActorsEN,
     getPersonDetails,
+    searchMovieByImage,
   };
 };
