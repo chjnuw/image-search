@@ -4,7 +4,7 @@
     v-if="pending"
     class="w-full min-h-screen bg-[#0B0A0A] flex items-center justify-center"
   >
-    <h1 class="text-white">Loading...</h1>
+    <h1 class="text-white">กำลังโหลด...</h1>
   </div>
 
   <!--  ไม่ได้ล็อกอิน -->
@@ -28,36 +28,67 @@
 
   <!-- ล็อกอินแล้ว -->
   <div
-    v-else
-    class="w-full min-h-screen flex bg-[#0B0A0A] gap-20 px-6"
+  v-else
+  class="w-full min-h-screen flex flex-col md:flex-row bg-[#0B0A0A] gap-6 md:gap-20 px-4 md:px-6"
+>
+  <!-- MENU -->
+  <div
+    class="w-full md:w-[350px]
+           h-auto md:h-[450px]
+           bg-[#0B0A0A]
+           rounded-4xl flex
+           md:flex-col flex-row
+           shadow-2xl overflow-hidden mt-25"
   >
-    <div class="w-[350px] h-[450px] bg-[#0B0A0A] mt-35 rounded-4xl flex flex-col shadow-2xl">
-      <div
-        @click="activeTab = 'profile'"
-        class="absolute w-[350px] h-[60px] bg-[#0B0A0A] hover:bg-[#90CB38] cursor-pointer flex items-center justify-center"
-      >
-        <h1 class="text-white text-[20px]">Profile</h1>
-      </div>
-
-      <div
-        @click="activeTab = 'password'"
-        class="mt-14.5 w-[350px] h-[60px] bg-[#0B0A0A] hover:bg-[#90CB38] cursor-pointer flex items-center justify-center"
-      >
-        <h1 class="text-white text-[20px]">Password</h1>
-      </div>
-
-      <div
-        @click="showLogout = true"
-        class="mt-68 w-[350px] h-[60px] bg-[#151414] hover:bg-[#90CB38] rounded-br-4xl cursor-pointer flex items-center justify-center"
-      >
-        <h1 class="text-[#eb1313] text-[20px]">Log out</h1>
-      </div>
+    <!-- PROFILE -->
+    <div
+      @click="activeTab = 'profile'"
+      class="w-1/3 md:w-full
+             h-[60px]
+             bg-[#0B0A0A]
+             hover:bg-[#90CB38]
+             cursor-pointer flex items-center justify-center"
+      :class="activeTab === 'profile' ? 'bg-[#90CB38]' : ''"
+    >
+      <h1 class="text-white text-[18px] md:text-[20px]">โปรไฟล์</h1>
     </div>
 
+    <!-- PASSWORD -->
+    <div
+      @click="activeTab = 'password'"
+      class="w-1/3 md:w-full
+             h-[60px]
+             bg-[#0B0A0A]
+             hover:bg-[#90CB38]
+             cursor-pointer flex items-center justify-center"
+      :class="activeTab === 'password' ? 'bg-[#90CB38]' : ''"
+    >
+      <h1 class="text-white text-[18px] md:text-[20px]">รหัสผ่าน</h1>
+    </div>
+
+    <!-- LOGOUT -->
+    <div
+      @click="showLogout = true"
+      class="w-1/3 md:w-full
+             h-[60px]
+             bg-[#151414]
+             hover:bg-[#90CB38]
+             cursor-pointer flex items-center justify-center
+             md:mt-auto"
+    >
+      <h1 class="text-[#eb1313] text-[18px] md:text-[20px]">ออกจากระบบ</h1>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="flex-1 w-full">
     <CardProfile v-if="activeTab === 'profile'" />
     <CardProfilepassword v-if="activeTab === 'password'" />
-    <logout v-if="showLogout" @close="showLogout = false" />
   </div>
+
+  <logout v-if="showLogout" @close="showLogout = false" />
+</div>
+
 </template>
 
 <script setup>

@@ -1,25 +1,36 @@
 <template>
   <div
-    class="w-[1100px] h-[600px] bg-[#D9D9D9]/10 rounded-4xl
-           flex flex-col mt-35 gap-6 justify-center items-center"
+    
+     class="
+    w-full
+    max-w-[900px]        <!-- ลดความกว้าง -->
+    min-h-[650px]        <!-- ไม่สูงจนเกิน -->
+    bg-[#D9D9D9]/10
+    rounded-4xl
+    flex flex-col
+    gap-6
+    justify-center items-center
+    mt-28
+    mx-auto              <!-- เว้นซ้ายขวา -->
+    px-6 py-10           <!-- ขอบในโปร่งขึ้น -->
+  "
   >
     <!-- ===== VIEW MODE ===== -->
     <template v-if="!isEditing">
-      <div class="flex flex-col w-[363px] gap-1">
+      <div class="flex flex-col w-full max-w-[363px] gap-1">
         <label class="text-white text-sm font-bold">Password</label>
         <input
           type="password"
           value="********"
           disabled
-          class="w-full h-12 bg-white/20 rounded-2xl px-4
-                 text-white cursor-not-allowed"
+          class="w-full h-12 bg-white/20 rounded-2xl px-4 text-white cursor-not-allowed"
         />
       </div>
     </template>
 
     <!-- ===== EDIT MODE ===== -->
     <template v-else>
-      <div class="flex flex-col w-[363px] gap-1">
+      <div class="flex flex-col w-full max-w-[363px] gap-1">
         <label class="text-white text-sm font-bold">Old Password</label>
         <input
           type="password"
@@ -28,7 +39,7 @@
         />
       </div>
 
-      <div class="flex flex-col w-[363px] gap-1">
+      <div class="flex flex-col w-full max-w-[363px] gap-1">
         <label class="text-white text-sm font-bold">New Password</label>
         <input
           type="password"
@@ -37,8 +48,10 @@
         />
       </div>
 
-      <div class="flex flex-col w-[363px] gap-1">
-        <label class="text-white text-sm font-bold">Confirm New Password</label>
+      <div class="flex flex-col w-full max-w-[363px] gap-1">
+        <label class="text-white text-sm font-bold">
+          Confirm New Password
+        </label>
         <input
           type="password"
           v-model="form.confirmPassword"
@@ -50,13 +63,13 @@
     <!-- ปุ่ม -->
     <button
       @click="toggleEdit"
-      class="w-[180px] h-[45px] bg-[#90CB38] rounded-2xl
-             text-white font-medium text-lg hover:bg-[#7fbb32]"
+      class="w-[180px] h-[45px] bg-[#90CB38] rounded-2xl text-white font-medium text-lg hover:bg-[#7fbb32]"
     >
       {{ isEditing ? 'Confirm' : 'Edit' }}
     </button>
   </div>
 </template>
+
 
 <script setup>
 import { ref } from 'vue'

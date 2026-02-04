@@ -1,5 +1,5 @@
 <template>
-  <!-- ⏳ กำลังเช็ค login -->
+  <!-- ⏳ loading -->
   <div
     v-if="pending"
     class="w-full min-h-screen bg-[#0B0A0A] flex items-center justify-center"
@@ -7,7 +7,7 @@
     <h1 class="text-white">Loading...</h1>
   </div>
 
-  <!-- ❌ ยังไม่ล็อกอิน -->
+  <!-- ❌ not login -->
   <div
     v-else-if="!isLoggedIn"
     class="w-full min-h-screen bg-[#0B0A0A] flex items-center justify-center"
@@ -19,50 +19,51 @@
 
       <button
         @click="goToLogin"
-        class="px-8 py-3 bg-[#90CB38] text-white text-shadow-4xl rounded-xl font-medium cursor-pointer hover:bg-[#6da11f]"
+        class="px-8 py-3 bg-[#90CB38] text-white rounded-xl hover:bg-[#6da11f]"
       >
         เข้าสู่ระบบ
       </button>
     </div>
   </div>
 
-  <!-- ✅ ล็อกอินแล้ว -->
+  <!-- ✅ logged in -->
   <div
     v-else
-    class="mt-22 mx-[10%] bg-[#0B0A0A]"
+    class="w-full max-w-[1200px] mx-auto mt-20 bg-[#0B0A0A] px-4"
   >
-    <!-- header -->
-    <div class="relative w-full flex items-center px-10 pt-6">
-      <div class="w-[100px]"></div>
+    <!-- HEADER -->
+    <div class="grid grid-cols-1 md:grid-cols-3 items-center gap-4 pt-6">
+      <!-- ปุ่มซ้าย (จอใหญ่) -->
+      <div class="hidden md:flex justify-start">
+        <button
+          @click="openFavPopup"
+          class="w-[200px] h-[45px] bg-[#90CB38] hover:bg-[#699627] rounded-2xl text-white cursor-pointer"
+        >
+          จุ่มหนังจากรายการโปรด
+        </button>
+      </div>
 
-      <h1 class="text-3xl font-medium flex-1 text-center">
+      <!-- title -->
+      <h1 class="text-2xl md:text-3xl font-medium text-center">
         รายการโปรด
       </h1>
 
-      <button
-        @click="openFavPopup"
-        class="w-[200px] h-[45px] bg-[#90CB38] hover:bg-[#699627] rounded-2xl cursor-pointer"
-      >
-        จุ่มหนังจากรายการโปรด
-      </button>
+      <!-- balance -->
+      <div class="hidden md:block"></div>
 
-      <PopupFav
-        v-if="showFavPopup"
-        @close="showFavPopup = false"
-        @result="openResult"
-      />
-
-      <PopupResultFav
-        v-if="resultMovie"
-        :movie="resultMovie"
-        @close="resultMovie = null"
-        @view="openMovieDetail"
-        @retry="retrySpin"
-      />
+      <!-- ปุ่มมือถือ -->
+      <div class="flex md:hidden justify-center">
+        <button
+          @click="openFavPopup"
+          class="w-full max-w-[240px] h-[45px] bg-[#90CB38] hover:bg-[#699627] rounded-2xl text-white cursor-pointer"
+        >
+          จุ่มหนังจากรายการโปรด
+        </button>
+      </div>
     </div>
 
-    <!-- list -->
-    <div class="bg-[#0B0A0A] text-white w-full flex rounded-xl h-full p-8 pt-4">
+    <!-- LIST -->
+    <div class="mt-6 pb-16 text-white">
       <transition name="fade" mode="out-in">
         <SkeletonCatagorySkeletonMovieList
           v-if="isLoadingMovies"
@@ -70,47 +71,63 @@
         />
 
         <div
-          v-else
-          class="grid gap-3.5 px-4 pt-3
-          grid-cols-2
-          sm:grid-cols-3
-          md:grid-cols-4
-          lg:grid-cols-5
-          xl:grid-cols-6"
+          v-else-if="movies.length"
+          class="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
         >
           <CardM
             v-for="movie in movies"
             :key="movie.id"
             :movie="movie"
-            @removed="movies = movies.filter(m => m.id !== $event)"
+            @removed="removeMovie"
             @open="openPopup"
           />
         </div>
-      </transition>
 
-      <PopupM
-        v-if="showPopup"
-        :selectedId="selectedId"
-        @close="showPopup = false"
-      />
+        <p
+          v-else
+          class="text-center text-gray-500 mt-10"
+        >
+          ยังไม่มีหนังในรายการโปรด
+        </p>
+      </transition>
     </div>
 
-    <!-- แนะนำสำหรับคุณ -->
-    <div class="snap-start mb-10 p-7">
-      <div class="p-4 flex items-center gap-3">
-        <h2 class="font-bold text-2xl whitespace-nowrap">
+    <!-- popup movie -->
+    <PopupM
+      v-if="showPopup && selectedId !== null"
+      :selectedId="selectedId"
+      @close="showPopup = false"
+    />
+
+    <!-- popup fav -->
+    <PopupFav
+      v-if="showFavPopup"
+      @close="showFavPopup = false"
+      @result="openResult"
+    />
+
+    <PopupResultFav
+      v-if="resultMovie"
+      :movie="resultMovie"
+      @close="resultMovie = null"
+      @view="openMovieDetail"
+      @retry="retrySpin"
+    />
+
+    <!-- recommend -->
+    <div class="mt-10 mb-10 px-2">
+      <div class="flex items-center gap-3 mb-3">
+        <h2 class="font-bold text-xl md:text-2xl">
           แนะนำสำหรับคุณ
         </h2>
-        <p class="text-gray-500 text-sm">
-          จากแนวหนังที่คุณชื่นชอบ
-        </p>
-        <div class="flex-1 border-b-2"></div>
+        <div class="flex-1 border-b border-gray-700"></div>
       </div>
 
-      <div
-        v-if="userTags.length"
-        class="flex gap-2 flex-wrap text-sm"
-      >
+      <p class="text-gray-500 text-sm mb-3">
+        จากแนวหนังที่คุณชื่นชอบ
+      </p>
+
+      <div v-if="userTags.length" class="flex gap-2 flex-wrap text-sm mb-4">
         <span
           v-for="tag in userTags"
           :key="tag.id"
@@ -126,41 +143,53 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, onUnmounted } from "vue"
+import { ref, computed, onMounted, onUnmounted } from "vue"
 import { useRouter } from "vue-router"
 import type { Movie } from "../Type/tmdb"
 import { useTMDB } from "../composables/useTMDB"
 
-import Recomment from "~/components/recomment.vue"
+/* components */
+import CardM from "../components/cardM.vue"
+import PopupM from "../components/popupM.vue"
 import PopupFav from "../components/popupfav.vue"
 import PopupResultFav from "../components/popupResultFav.vue"
+import Recomment from "../components/recomment.vue"
 
+/* router */
 const router = useRouter()
 
-/* ---------------- login check (เหมือน profile) ---------------- */
-const { data, pending, error } = await useFetch("/api/profile", {
+/* login */
+const { pending, error } = await useFetch("/api/profile", {
   credentials: "include",
   throw: false
 })
 
-const isLoggedIn = computed(() => {
-  if (pending.value) return false
-  if (error.value) return false
-  return true
-})
+const isLoggedIn = computed(() => !pending.value && !error.value)
 
 const goToLogin = () => {
   router.push("/logInscreen")
 }
 
-/* ---------------- popup fav ---------------- */
+/* movies */
+const movies = ref<Movie[]>([])
+const isLoadingMovies = ref(true)
+
+/* popup movie */
+const showPopup = ref(false)
+const selectedId = ref<number | null>(null)
+
+const openPopup = (id: number) => {
+  selectedId.value = id
+  showPopup.value = true
+}
+
+const removeMovie = (id: number) => {
+  movies.value = movies.value.filter(m => m.id !== id)
+}
+
+/* popup fav */
 const showFavPopup = ref(false)
 const resultMovie = ref<Movie | null>(null)
-
-const retrySpin = () => {
-  resultMovie.value = null
-  showFavPopup.value = true
-}
 
 const openFavPopup = () => {
   showFavPopup.value = true
@@ -171,29 +200,20 @@ const openResult = (movie: Movie) => {
   showFavPopup.value = false
 }
 
+const retrySpin = () => {
+  resultMovie.value = null
+  showFavPopup.value = true
+}
+
 const openMovieDetail = (id: number) => {
   resultMovie.value = null
   openPopup(id)
 }
 
-/* ---------------- movies ---------------- */
-const movies = ref<Movie[]>([])
-const favoriteIds = ref<number[]>([])
-const isLoadingMovies = ref(true)
-
-/* ---------------- movie popup ---------------- */
-const showPopup = ref(false)
-const selectedId = ref<number | null>(null)
-
-function openPopup(id: number) {
-  selectedId.value = id
-  showPopup.value = true
-}
-
-/* ---------------- user tags ---------------- */
+/* user tags */
 const userTags = ref<{ id: number; name: string }[]>([])
 
-/* ---------------- TMDB ---------------- */
+/* TMDB */
 const { getMovieDetails } = useTMDB()
 
 const loadFavorites = async () => {
@@ -204,10 +224,8 @@ const loadFavorites = async () => {
       { credentials: "include" }
     )
 
-    favoriteIds.value = favs.map(f => f.movie_id)
-
     const results = await Promise.all(
-      favoriteIds.value.map(id => getMovieDetails(id))
+      favs.map(f => getMovieDetails(f.movie_id))
     )
 
     movies.value = results.filter(Boolean) as Movie[]
@@ -218,11 +236,7 @@ const loadFavorites = async () => {
   }
 }
 
-/* ---------------- esc ---------------- */
-watch(showPopup, (val) => {
-  document.body.style.overflow = val ? "hidden" : ""
-})
-
+/* esc */
 const handleEsc = (e: KeyboardEvent) => {
   if (e.key === "Escape") showPopup.value = false
 }
@@ -243,6 +257,16 @@ onMounted(async () => {
 
 onUnmounted(() => {
   document.removeEventListener("keydown", handleEsc)
-  document.body.style.overflow = ""
 })
 </script>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>
