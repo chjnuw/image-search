@@ -5,8 +5,8 @@
       navState === 'transparent'
         ? 'bg-linear-to-t from-transparent to-black/70 translate-y-0 p-6 text-white'
         : navState === 'hidden'
-        ? '-translate-y-full p-0'
-        : 'bg-black/100 translate-y-0 p-6 text-white',
+          ? '-translate-y-full p-0'
+          : 'bg-black/100 translate-y-0 p-6 text-white',
     ]"
   >
     <div
@@ -21,25 +21,25 @@
             class="hover:cursor-pointer hover:text-[#a0e13e] duration-300"
             :class="{ 'text-[#a0e13e]': $route.path === '/' }"
           >
-            <NuxtLink to="/" reload> หน้าหลัก </NuxtLink>
+            <NuxtLink to="/" > หน้าหลัก </NuxtLink>
           </li>
           <li
             class="hover:cursor-pointer hover:text-[#a0e13e] duration-300"
             :class="{ 'text-[#a0e13e]': $route.path === '/catagory' }"
           >
-            <NuxtLink to="/catagory" reload> หมวดหมู่ </NuxtLink>
+            <NuxtLink to="/catagory" > หมวดหมู่ </NuxtLink>
           </li>
           <li
             class="hover:cursor-pointer hover:text-[#a0e13e] duration-300"
             :class="{ 'text-[#a0e13e]': $route.path === '/actor' }"
           >
-            <NuxtLink to="/actor" reload> นักแสดง </NuxtLink>
+            <NuxtLink to="/actor" > นักแสดง </NuxtLink>
           </li>
           <li
             class="hover:cursor-pointer hover:text-[#a0e13e] duration-300"
             :class="{ 'text-[#a0e13e]': $route.path === '' }"
           >
-            <NuxtLink to="" reload> สุ่มภาพยนตร์ </NuxtLink>
+            <NuxtLink to="" > สุ่มภาพยนตร์ </NuxtLink>
           </li>
         </div>
       </div>
@@ -60,9 +60,24 @@
         </NuxtLink>
 
         <NuxtLink to="/profile" reload>
+          <img
+            v-if="avatar"
+            :src="avatar"
+            alt="user avatar"
+            class="w-9 h-9 rounded-full object-cover border border-white/20 hover:opacity-80"
+          />
+
+          <div
+            v-else-if="userName"
+            class="w-9 h-9 rounded-full bg-[#A0E13E] text-black flex items-center justify-center font-bold uppercase"
+          >
+            {{ userInitial }}
+          </div>
+
           <FontAwesomeIcon
+            v-else
             icon="fa-regular fa-circle-user"
-            class="flex text-3xl cursor-pointer"
+            class="text-3xl cursor-pointer"
           />
         </NuxtLink>
       </div>
@@ -88,6 +103,7 @@
           ref="searchRef"
           @select="onSelectSearchMovie"
           @close="openSearch = false"
+          @image-search="openSearch = false"
         />
       </div>
     </div>
@@ -99,8 +115,8 @@
     @close="showPopup = false"
   />
 </template>
-<script setup>
-import { ref, watch, onMounted, onUnmounted, nextTick } from "vue";
+<script setup lang="ts">
+import { ref, watch, onMounted, onUnmounted, nextTick, computed } from "vue";
 import { useRoute } from "vue-router";
 import { useGlobalLoading } from "../composables/useGlobalLoading";
 
@@ -122,7 +138,7 @@ watch(
       navState.value = "black"; // หน้าอื่นเริ่มสีดำเลย
     }
   },
-  { immediate: true } // ให้เช็คทันทีตอน render ครั้งแรก
+  { immediate: true }, // ให้เช็คทันทีตอน render ครั้งแรก
 );
 
 const handleScroll = () => {
@@ -161,6 +177,7 @@ const openSearch = ref(false);
 const emit = defineEmits(["search-select"]);
 
 const onSelectSearchMovie = async (movie) => {
+  if (!movie?.id) return;
   openSearch.value = false;
   await nextTick();
   start();
@@ -173,9 +190,16 @@ watch(openSearch, (val) => {
 });
 
 const handleEsc = (e) => {
-  if (e.key === "Escape") {
-    if (showPopup.value) showPopup.value = false;
-    else openSearch.value = false;
+  if (e.key !== "Escape") return;
+
+  if (showPopup.value) {
+    showPopup.value = false;
+    return;
+  }
+
+  if (openSearch.value) {
+    openSearch.value = false;
+    return;
   }
 };
 
@@ -190,6 +214,40 @@ watch(openSearch, async (val) => {
     searchRef.value?.focusInput(); // ⭐ โฟกัสทันที
   }
 });
+
+watch(
+  () => route.fullPath,
+  () => {
+    openSearch.value = false; // ✅ ปิด overlay ทุกครั้งที่เปลี่ยนหน้า
+  },
+);
+
+const avatar = ref<string | null>(null);
+const userName = ref<string | null>(null);
+
+const userInitial = computed(() => {
+  if (!userName.value) return "";
+  return userName.value.trim().charAt(0);
+});
+
+import { $fetch } from "ofetch";
+
+onMounted(async () => {
+  try {
+    const me = await $fetch("/api/me", {
+      credentials: "include",
+    });
+
+    console.log("ME =>", me);
+
+    avatar.value = me.image || null;
+    userName.value = me.username || null;
+  } catch (err) {
+    console.log("ME ERROR =>", err);
+  }
+});
+
+
 </script>
 
 <style>

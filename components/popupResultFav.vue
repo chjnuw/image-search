@@ -57,20 +57,22 @@
 
       <!-- Buttons -->
       <div class="flex gap-3 mt-6 px-2">
+        <!-- RANDOM AGAIN -->
         <button
-          @click="$emit('retry')"
+          @click="onRetry"
           class="
             flex-1 py-2.5 sm:py-3
             rounded-full bg-white text-red-600 font-bold
-            hover:bg-[#c9c9c9] cursor-pointer text-shadow-4xl
+            hover:bg-[#c9c9c9] cursor-pointer
             text-sm sm:text-base
           "
         >
           สุ่มใหม่
         </button>
 
+        <!-- VIEW DETAIL -->
         <button
-          @click="$emit('view', movie.id)"
+          @click="onView"
           class="
             flex-1 py-2.5 sm:py-3
             rounded-full bg-[#90CB38] hover:bg-[#72a02c]
@@ -92,32 +94,36 @@ import type { Movie } from "@/Type/tmdb"
 import { genreMap } from "../composables/genreMap"
 
 const emit = defineEmits<{
-  (e: "close"): void
-  (e: "view", id: number): void
   (e: "retry"): void
+  (e: "view", id: number): void
 }>()
-
 
 const props = defineProps<{
   movie: Movie
 }>()
 
-/* poster */
 const posterSrc = computed(() =>
   props.movie.poster_path
     ? "https://image.tmdb.org/t/p/w500" + props.movie.poster_path
     : "/img/no-poster.png"
 )
 
-/* year */
 const releaseYear = computed(() =>
   props.movie.release_date
     ? props.movie.release_date.slice(0, 4)
     : "N/A"
 )
 
-/* stars (0–5) */
 const starCount = computed(() =>
   Math.round((props.movie.vote_average || 0) / 2)
 )
+
+const onRetry = () => {
+  emit("retry")
+}
+
+const onView = () => {
+  emit("view", props.movie.id)
+}
 </script>
+

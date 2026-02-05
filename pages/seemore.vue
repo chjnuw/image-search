@@ -13,11 +13,22 @@
           class="h-32 rounded-lg border border-white/10"
         />
       </div>
-      
-      <h1 class="text-2xl font-bold mb-4">
-        <span v-if="isImageSearch">ผลการค้นหาจากรูปภาพ</span>
-        <span v-else>ผลการค้นหา: "{{ route.query.q }}"</span>
-      </h1>
+
+      <div class="mb-4">
+        <h1 class="text-2xl font-bold">
+          <span v-if="isImageSearch">
+            ผลการค้นหาจากรูปภาพ:
+            <span class="text-[#A0E13E]">
+              {{ predictedMovieTitle || "กำลังวิเคราะห์..." }}
+            </span>
+          </span>
+
+          <span v-else> ผลการค้นหา: "{{ route.query.q }}" </span>
+        </h1>
+        <span v-if="isImageSearch" class="opacity-60 text-md text-red-400"
+          >ผลการค้นหาอาจไม่ถูกต้อง 100%
+        </span>
+      </div>
 
       <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
         <CardM v-for="m in movies" :key="m.id" :movie="m" @open="openPopup" />
@@ -25,7 +36,7 @@
 
       <div class="flex justify-center mt-6">
         <button
-          v-if="hasMore && !loading"
+          v-if="hasMore && !loading && !isImageSearch"
           @click="loadMore"
           class="px-6 py-3 bg-[#A0E13E] rounded-lg font-bold w-full"
         >
@@ -51,7 +62,7 @@
   </ClientOnly>
 </template>
 <script setup lang="ts">
-import { ref, watch, onMounted } from "vue";
+import { ref, watch, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
 import { useTMDB } from "../composables/useTMDB";
 import { useSearchState } from "../composables/useSearchState";
@@ -123,20 +134,41 @@ async function loadMore() {
 
 // ✅ เมื่อเปลี่ยนคำค้น
 watch(
-  () => route.query.q,
-  async (q) => {
-    if (!q) return;
-    movies.value = [];
-    page.value = 1;
-    hasMore.value = true;
-    await load();
+  () => route.query.image,
+  async (img) => {
+    if (img === "1") {
+      console.log("IMAGE SEARCH MODE");
+      movies.value = imageResults.value;
+      hasMore.value = false;
+    }
   },
   { immediate: true },
 );
 
-onMounted(async () => {
-  if (route.query.q) {
-    await load();
+watch(
+  imageResults,
+  (newVal) => {
+    if (isImageSearch.value) {
+      console.log("IMAGE RESULTS UPDATED:", newVal);
+      movies.value = newVal;
+      hasMore.value = false;
+    }
+  },
+  { deep: true },
+);
+
+onMounted(() => {
+  if (route.query.image === "1") {
+    console.log("ON MOUNT IMAGE SEARCH:", imageResults.value);
+    movies.value = imageResults.value;
+    hasMore.value = false;
   }
+});
+
+const predictedMovieTitle = computed(() => {
+  if (!isImageSearch.value) return null;
+  if (!imageResults.value.length) return null;
+
+  return imageResults.value[0].title;
 });
 </script>

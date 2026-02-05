@@ -50,11 +50,15 @@
             v-for="tag in tags"
             :key="tag.id"
             @click="toggleTag(tag.id)"
+            :disabled="isDisabled(tag.id)"
             :class="[
-              'h-10 sm:h-11 rounded-full font-bold shadow-xl transition text-[#ffffff] text-shadow-8xl',
+              'h-11 rounded-full font-bold shadow-xl transition',
               selectedTags.includes(tag.id)
-                ? 'bg-[#A0E13E]'
-                : 'bg-white/50 hover:bg-[#A0E13E]/70'
+                ? 'bg-[#A0E13E] text-black'
+                : 'bg-white/50 text-white text-shadow-5xl hover:bg-[#A0E13E]/70',
+              isDisabled(tag.id) && !selectedTags.includes(tag.id)
+                ? 'opacity-40 cursor-not-allowed'
+                : ''
             ]"
           >
             #{{ tag.name }}
@@ -68,9 +72,9 @@
 
         <!-- REGISTER BUTTON -->
         <button
-          class="mt-6 w-[180px] sm:w-[220px] h-[44px] sm:h-[46px]
-                 bg-[#A0E13E] text-white rounded-full
-                 font-bold shadow-xl hover:bg-[#80b432] cursor-pointer"
+          class="mt-6 w-[220px] h-[46px] bg-[#A0E13E] text-black rounded-full font-bold shadow-xl
+                 hover:bg-[#80b432] disabled:opacity-40 disabled:cursor-not-allowed"
+          :disabled="selectedTags.length !== 3"
           @click="submitTags"
         >
           สมัครบัญชี
@@ -81,34 +85,53 @@
   </div>
 </template>
 
-
-<script setup>
+<script setup lang="ts">
 definePageMeta({ layout: 'login' })
 
 import { ref } from 'vue'
-import { useRoute } from '#app'
 
+/* ---------- ROUTE ---------- */
 const route = useRoute()
 const userId = route.query.userId
 
-const { data: tags } = await useFetch('/api/tag')
+/* ---------- TAGS (NO CACHE) ---------- */
+const { data: tags, refresh } = await useFetch('/api/tag', {
+  server: false,
+  key: 'tag-list'
+})
 
-const selectedTags = ref([])
+/* ---------- STATE ---------- */
+const selectedTags = ref<number[]>([])
 const errorMsg = ref('')
 
-const toggleTag = (tagId) => {
+/* ---------- METHODS ---------- */
+const toggleTag = (tagId: number) => {
+  errorMsg.value = ''
+
   if (selectedTags.value.includes(tagId)) {
-    selectedTags.value = selectedTags.value.filter(t => t !== tagId)
+    selectedTags.value = selectedTags.value.filter(id => id !== tagId)
     return
   }
 
-  if (selectedTags.value.length < 3) {
-    selectedTags.value.push(tagId)
+  if (selectedTags.value.length >= 3) {
+    errorMsg.value = 'You can select up to 3 tags only'
+    return
   }
+
+  selectedTags.value.push(tagId)
 }
 
+const isDisabled = (tagId: number) =>
+  selectedTags.value.length === 3 &&
+  !selectedTags.value.includes(tagId)
+
 const submitTags = async () => {
-  console.log('🔥 submitTags called')
+  errorMsg.value = ''
+
+  if (selectedTags.value.length !== 3) {
+    errorMsg.value = 'Please select exactly 3 tags'
+    return
+  }
 
   try {
     const res = await $fetch('/api/user/tag', {
@@ -119,18 +142,14 @@ const submitTags = async () => {
       }
     })
 
-    console.log('🔥 API RES =', res)
-
-    if (res.ok) {
+    if (res?.ok) {
       navigateTo('/logInscreen')
     } else {
-      errorMsg.value = res.message
+      errorMsg.value = res?.message || 'Something went wrong'
     }
   } catch (err) {
-    console.error('🔥 FETCH ERROR', err)
+    console.error(err)
+    errorMsg.value = 'Server error'
   }
 }
-
 </script>
-
-

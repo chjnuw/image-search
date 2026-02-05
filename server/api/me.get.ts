@@ -1,24 +1,21 @@
-import { db } from '~/server/db'
-import { getCookie } from 'h3'
+import { getCookie } from "h3";
+import { db } from "../db";
 
 export default defineEventHandler(async (event) => {
-  const userId = getCookie(event, 'user_id')
-
+  const userId = getCookie(event, "user_id");
+  
   if (!userId) {
-    return { ok: false, message: 'ยังไม่ได้ล็อกอิน' }
+    throw createError({ statusCode: 401 });
   }
 
   const [rows]: any = await db.query(
-    'SELECT id, username, email, gender FROM user WHERE id = ?',
+    "SELECT id, username, email, image FROM user WHERE id = ? LIMIT 1",
     [userId]
-  )
+  );
 
-  if (rows.length === 0) {
-    return { ok: false, message: 'ไม่พบผู้ใช้' }
+  if (!rows.length) {
+    throw createError({ statusCode: 404 });
   }
 
-  return {
-    ok: true,
-    user: rows[0]
-  }
-})
+  return rows[0];
+});

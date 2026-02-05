@@ -7,22 +7,9 @@ export default defineEventHandler(async (event) => {
     const config = useRuntimeConfig();
     const userId = getCookie(event, "user_id");
 
-    // 🔹 CASE 1: ไม่ได้ล็อคอิน → popular
+    // 🔹 CASE 1: ไม่ได้ล็อคอิน
     if (!userId) {
-      const res: any = await $fetch(
-        "https://api.themoviedb.org/3/movie/popular",
-        {
-          headers: {
-            Authorization: `Bearer ${config.public.TMDB_READ_TOKEN}`,
-          },
-          query: {
-            language: "th-TH",
-            page: 1,
-          },
-        }
-      );
-
-      return res?.results?.slice(0, 20) || [];
+      return [];
     }
 
     // 🔹 CASE 2: ล็อคอิน → tag-based
@@ -33,7 +20,7 @@ export default defineEventHandler(async (event) => {
       JOIN tag t ON t.id = ut.tag_id
       WHERE ut.user_id = ?
       `,
-      [userId]
+      [userId],
     );
 
     const genreIds = rows.map((r: any) => r.tmdb_genre_id).filter(Boolean);
@@ -48,7 +35,7 @@ export default defineEventHandler(async (event) => {
         "https://api.themoviedb.org/3/discover/movie",
         {
           headers: {
-            Authorization: `Bearer ${config.public.TMDB_READ_TOKEN}`,
+            Authorization: `Bearer ${config.TMDB_READ_TOKEN}`,
           },
           query: {
             with_genres: genreId,
@@ -56,9 +43,11 @@ export default defineEventHandler(async (event) => {
             language: "th-TH",
             page,
           },
-        }
+        },
       );
-
+      console.log("USER TAG ROWS:", rows);
+      console.log("GENRE IDS:", genreIds);
+      console.log("🍪 user_id:", userId);
       movies.push(...(res?.results || []).slice(0, perGenre));
     }
 
