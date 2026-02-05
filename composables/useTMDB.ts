@@ -9,27 +9,27 @@ import type {
   MovieImagesResponse,
   MovieVideoResponse,
   MovieReleaseDatesResponse,
+  MovieCollectionResponse,
+  PersonMovieCredits,
+  PersonDetail,
 } from "../Type/tmdb";
 
-const BASE_URL = "https://api.themoviedb.org/3";
+const BASE_URL = "/api/tmdb";
 
 export const useTMDB = () => {
   const { lang, region } = useLang();
   const config = useRuntimeConfig();
   const apiBase = config.public.apiBase;
-  const authHeaders = {
-    accept: "application/json",
-    Authorization: `Bearer ${config.public.TMDB_READ_TOKEN}`,
-  };
 
   const request = async <T>(endpoint: string): Promise<T | null> => {
     try {
       return await $fetch<T>(`${BASE_URL}${endpoint}`, {
-        headers: authHeaders,
         query: {
           language: lang.value,
           region: region.value,
         },
+        timeout: 15000,
+        retry: 1,
       });
     } catch (error) {
       console.error("TMDB Error:", error);
@@ -43,7 +43,6 @@ export const useTMDB = () => {
   ): Promise<T | null> => {
     try {
       return await $fetch<T>(`${BASE_URL}${endpoint}`, {
-        headers: authHeaders,
         query: {
           language,
           region: region.value,
@@ -127,7 +126,6 @@ export const useTMDB = () => {
     $fetch<WatchProviderResponse>(
       `${BASE_URL}/movie/${movieId}/watch/providers`,
       {
-        headers: authHeaders,
         query: {
           watch_region: "TH",
         },
@@ -136,7 +134,6 @@ export const useTMDB = () => {
 
   const getWatchProviders = async (region = "TH") => {
     return await $fetch(`${BASE_URL}/watch/providers/movie`, {
-      headers: authHeaders,
       query: {
         watch_region: "TH",
       },
@@ -151,7 +148,6 @@ export const useTMDB = () => {
 
   const getMovieImages = (id: number) =>
     $fetch<MovieImagesResponse>(`${BASE_URL}/movie/${id}/images`, {
-      headers: authHeaders,
       query: {
         include_image_language: `${lang.value},en,null`,
       },
@@ -162,7 +158,6 @@ export const useTMDB = () => {
       let videos = await $fetch<MovieVideoResponse>(
         `${BASE_URL}/movie/${id}/videos`,
         {
-          headers: authHeaders,
           query: { language },
         },
       );
@@ -175,7 +170,6 @@ export const useTMDB = () => {
         videos = await $fetch<MovieVideoResponse>(
           `${BASE_URL}/movie/${id}/videos`,
           {
-            headers: authHeaders,
             query: { language: "en-US" },
           },
         );
@@ -217,7 +211,6 @@ export const useTMDB = () => {
     page = 1,
   ) {
     return await $fetch<TMDBResponse<Movie>>(`${BASE_URL}/discover/movie`, {
-      headers: authHeaders,
       query: {
         ...(providers.length && {
           with_watch_providers: providers.join("|"),
@@ -235,9 +228,7 @@ export const useTMDB = () => {
   }
 
   const getMovieReleaseDates = (id: number) =>
-    $fetch<MovieReleaseDatesResponse>(`${BASE_URL}/movie/${id}/release_dates`, {
-      headers: authHeaders,
-    });
+    $fetch<MovieReleaseDatesResponse>(`${BASE_URL}/movie/${id}/release_dates`);
 
   function extractAgeRating(data: any): string {
     if (!data?.results?.length) return "NR";
@@ -271,8 +262,10 @@ export const useTMDB = () => {
     requestWithLang<any>(`/person/${id}`, "en-US");
 
   const getPersonDetails = async (id: number) => {
-    const en = await getPersonDetailsEN(id);
-    const th = await getPersonDetailsTH(id);
+    const [en, th] = await Promise.all([
+      getPersonDetailsEN(id),
+      getPersonDetailsTH(id),
+    ]);
 
     if (!en && !th) return null;
 
@@ -287,6 +280,8 @@ export const useTMDB = () => {
       birthday: th?.birthday || en?.birthday,
       known_for_department:
         th?.known_for_department || en?.known_for_department,
+
+      gender: en?.gender ?? th?.gender,
     };
   };
 
@@ -303,6 +298,92 @@ export const useTMDB = () => {
 
     return await res.json(); // { movie_ids: number[] }
   }
+
+  const getMovieCollection = (collectionId: number) =>
+    request<MovieCollectionResponse>(`/collection/${collectionId}`);
+
+  // ==================================================================================
+  // actor
+  // ==================================================================================
+
+  const getActorMovieCredits = (id: number) =>
+    requestWithLang<PersonMovieCredits>(`/person/${id}/movie_credits`, "th-TH");
+
+  const getPersonCredits = async (id: number) => {
+    // 1️⃣ ดึง TH ก่อน
+    const th = await requestWithLang<any>(
+      `/person/${id}/combined_credits`,
+      "th-TH",
+    );
+
+    if (!th) return null;
+
+    // 2️⃣ จำกัดจำนวนก่อน (กัน CDN แตก)
+    th.cast = (th.cast ?? []).slice(0, 20);
+    th.crew = (th.crew ?? []).slice(0, 10);
+
+    // 3️⃣ เช็คว่าจำเป็นต้อง fallback EN ไหม (เฉพาะ text)
+    const needFallback = [...th.cast, ...th.crew].some(
+      (i) => !i.title && !i.name,
+    );
+
+    if (!needFallback) {
+      return th; // ✅ TH ครบ → ไม่ยิง EN
+    }
+
+    // 4️⃣ ดึง EN เฉพาะตอนจำเป็น
+    const en = await requestWithLang<any>(
+      `/person/${id}/combined_credits`,
+      "en-US",
+    );
+
+    if (!en) return th;
+
+    en.cast = (en.cast ?? []).slice(0, 20);
+    en.crew = (en.crew ?? []).slice(0, 10);
+
+    const merge = (thList: any[], enList: any[]) => {
+      const enMap = new Map(enList.map((i) => [i.id, i]));
+
+      return thList.map((thItem) => {
+        const enItem = enMap.get(thItem.id);
+
+        return {
+          ...thItem,
+
+          // 🏷 ภาษา TH ก่อน → EN fallback
+          title: thItem.title || enItem?.title,
+          name: thItem.name || enItem?.name,
+          overview: thItem.overview || enItem?.overview || "",
+
+          // 🖼 รูปใช้ EN เสมอ (กัน null)
+          poster_path: enItem?.poster_path ?? thItem.poster_path ?? null,
+          backdrop_path: enItem?.backdrop_path ?? thItem.backdrop_path ?? null,
+
+          original_title: enItem?.original_title,
+          original_name: enItem?.original_name,
+        };
+      });
+    };
+
+    return {
+      ...th,
+      cast: merge(th.cast ?? [], en.cast ?? []),
+      crew: merge(th.crew ?? [], en.crew ?? []),
+    };
+  };
+
+  const getPersonExternalIds = (id: number) =>
+    $fetch(`${BASE_URL}/person/${id}/external_ids`, {});
+
+  const getTvAggregateCredits = (tvId: number) =>
+    $fetch(`${BASE_URL}/tv/${tvId}/aggregate_credits`, {});
+
+  const searchActorsEN = (query: string, page = 1) =>
+    requestWithLang<TMDBResponse<any>>(
+      `/search/person?query=${encodeURIComponent(query)}&page=${page}`,
+      "en-US",
+    );
 
   return {
     getPopularMovies,
@@ -331,5 +412,11 @@ export const useTMDB = () => {
     getPopularActorsEN,
     getPersonDetails,
     searchMovieByImage,
+    getMovieCollection,
+    getActorMovieCredits,
+    getPersonCredits,
+    getPersonExternalIds,
+    getTvAggregateCredits,
+    searchActorsEN,
   };
 };

@@ -197,7 +197,7 @@ const handleToHomepage = async () => {
       localStorage.setItem("user", JSON.stringify(res.user));
 
       // ไปหน้าโปรไฟล์ หรือหน้าแรก
-      navigateTo("/profile");
+      navigateTo("/");
     } else {
       errorMsg.value = res.message;
     }

@@ -54,7 +54,6 @@
 definePageMeta({ layout: 'login' })
 
 import { ref } from 'vue'
-import { useRoute } from '#app'
 
 const route = useRoute()
 const userId = route.query.userId

@@ -41,7 +41,7 @@
 
       <button
         @click="openFavPopup"
-        class="w-[200px] h-[45px] bg-[#90CB38] hover:bg-[#699627] rounded-2xl cursor-pointer"
+        class="bg-[#90CB38] hover:bg-[#699627] rounded-2xl cursor-pointer px-4 py-2"
       >
         จุ่มหนังจากรายการโปรด
       </button>
@@ -131,9 +131,6 @@ import { useRouter } from "vue-router"
 import type { Movie } from "../Type/tmdb"
 import { useTMDB } from "../composables/useTMDB"
 
-import Recomment from "~/components/recomment.vue"
-import PopupFav from "../components/popupfav.vue"
-import PopupResultFav from "../components/popupResultFav.vue"
 
 const router = useRouter()
 

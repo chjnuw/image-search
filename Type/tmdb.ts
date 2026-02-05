@@ -129,3 +129,27 @@ export interface MovieReleaseDatesResponse {
   id: number;
   results: ReleaseDateResult[];
 }
+
+export interface MovieCollectionResponse {
+  id: number;
+  name: string;
+  overview: string;
+  poster_path: string | null;
+  backdrop_path: string | null;
+  parts: Movie[];
+}
+
+export interface PersonMovieCredits {
+  cast: Movie[]
+  crew: Movie[]
+}
+
+export interface PersonDetail {
+  birthday: string | null;
+  known_for_department: string;
+  deathday: string | null;
+  id: number;
+  name: string;
+  also_known_as: string[];
+  gender: number;
+}

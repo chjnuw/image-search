@@ -13,9 +13,7 @@
     class="w-full min-h-screen bg-[#0B0A0A] flex items-center justify-center"
   >
     <div class="flex flex-col items-center gap-6 text-center">
-      <h1 class="text-white text-2xl">
-        คุณยังไม่ได้ล็อกอินบัญชีผู้ใช้
-      </h1>
+      <h1 class="text-white text-2xl">คุณยังไม่ได้ล็อกอินบัญชีผู้ใช้</h1>
 
       <button
         @click="goToLogin"
@@ -27,30 +25,31 @@
   </div>
 
   <!-- ล็อกอินแล้ว -->
-  <div
-    v-else
-    class="w-full min-h-screen flex bg-[#0B0A0A] gap-20 px-6"
-  >
-    <div class="w-[350px] h-[450px] bg-[#0B0A0A] mt-35 rounded-4xl flex flex-col shadow-2xl">
-      <div
-        @click="activeTab = 'profile'"
-        class="absolute w-[350px] h-[60px] bg-[#0B0A0A] hover:bg-[#90CB38] cursor-pointer flex items-center justify-center"
-      >
-        <h1 class="text-white text-[20px]">Profile</h1>
-      </div>
+  <div v-else class="w-full min-h-screen flex bg-[#0B0A0A] gap-20 px-6 pb-20 ">
+    <div
+      class="w-[350px] h-[450px] bg-[#0B0A0A] mt-35 rounded-4xl flex flex-col shadow-2xl justify-between "
+    >
+      <div class="">
+        <div
+          @click="activeTab = 'profile'"
+          class="px-4 py-2 bg-[#0B0A0A] hover:bg-[#90CB38] cursor-pointer flex items-center justify-center"
+          :class="{ 'bg-[#90CB38]': activeTab === 'profile' }">
+          <h1 class="text-lg">Profile</h1>
+        </div>
 
-      <div
-        @click="activeTab = 'password'"
-        class="mt-14.5 w-[350px] h-[60px] bg-[#0B0A0A] hover:bg-[#90CB38] cursor-pointer flex items-center justify-center"
-      >
-        <h1 class="text-white text-[20px]">Password</h1>
+        <div
+          @click="activeTab = 'password'"
+          class="px-4 py-2 bg-[#0B0A0A] hover:bg-[#90CB38] cursor-pointer flex items-center justify-center"
+          :class="{ 'bg-[#90CB38]': activeTab === 'password' }">
+          <h1 class="text-lg">Password</h1>
+        </div>
       </div>
 
       <div
         @click="showLogout = true"
-        class="mt-68 w-[350px] h-[60px] bg-[#151414] hover:bg-[#90CB38] rounded-br-4xl cursor-pointer flex items-center justify-center"
+        class="px-4 py-2 bg-[#151414] hover:bg-[#90CB38] rounded-br-4xl cursor-pointer flex items-center justify-center"
       >
-        <h1 class="text-[#eb1313] text-[20px]">Log out</h1>
+        <h1 class="text-[#eb1313] text-lg">Log out</h1>
       </div>
     </div>
 
@@ -61,32 +60,33 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed } from "vue";
+import { useRouter } from "vue-router";
 
-import CardProfile from '~/components/cardProfile.vue'
-import CardProfilepassword from '~/components/cardProfilepassword.vue'
-import logout from '~/components/logout.vue'
+import CardProfile from "~/components/cardProfile.vue";
+import CardProfilepassword from "~/components/cardProfilepassword.vue";
+import logout from "~/components/logout.vue";
 
-const router = useRouter()
+const router = useRouter();
 
-const activeTab = ref('profile')
-const showLogout = ref(false)
+const activeTab = ref("profile");
+const showLogout = ref(false);
 
-//  ตัวตัดสิน login 
-const { data, pending, error } = await useFetch('/api/profile', {
-  credentials: 'include',
-  throw: false // สำคัญมาก
-})
+//  ตัวตัดสิน login
+const { data, pending, error } = await useFetch("/api/profile", {
+  credentials: "include",
+  throw: false, // สำคัญมาก
+});
 
 //  logic เดียว
 const isLoggedIn = computed(() => {
-  if (pending.value) return false
-  if (error.value) return false 
-  return true
-})
+  if (pending.value) return false;
+  if (error.value) return false;
+  return true;
+});
 
 const goToLogin = () => {
-  router.push('/logInscreen')
-}
+  router.push("/logInscreen");
+};
+
 </script>
