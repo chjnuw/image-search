@@ -1,83 +1,95 @@
 <template>
-  <!-- ⏳ กำลังเช็ค login -->
-  <div v-if="pending" class="w-full min-h-screen bg-[#0B0A0A] flex items-center justify-center">
+  <!-- ⏳ loading -->
+  <div
+    v-if="pending"
+    class="w-full min-h-screen bg-[#0B0A0A] flex items-center justify-center"
+  >
     <h1 class="text-white">Loading...</h1>
   </div>
 
-  <!-- ❌ ยังไม่ล็อกอิน -->
-  <div v-else-if="!isLoggedIn" class="w-full min-h-screen bg-[#0B0A0A] flex items-center justify-center">
+  <!-- ❌ not login -->
+  <div
+    v-else-if="!isLoggedIn"
+    class="w-full min-h-screen bg-[#0B0A0A] flex items-center justify-center"
+  >
     <div class="flex flex-col items-center gap-6 text-center">
       <h1 class="text-white text-2xl">
         คุณยังไม่ได้ล็อกอินบัญชีผู้ใช้
       </h1>
 
-      <button @click="goToLogin"
-        class="px-8 py-3 bg-[#90CB38] text-white text-shadow-4xl rounded-xl font-medium cursor-pointer hover:bg-[#6da11f]">
+      <button
+        @click="goToLogin"
+        class="px-8 py-3 bg-[#90CB38] text-white rounded-xl hover:bg-[#6da11f]"
+      >
         เข้าสู่ระบบ
       </button>
     </div>
   </div>
 
-  <!-- ✅ ล็อกอินแล้ว -->
-  <div v-else class="mt-22 mx-[10%] bg-[#0B0A0A]">
-    <!-- header -->
-    <div class="relative w-full flex items-center px-10 pt-6">
-      <div class="w-[100px]"></div>
+  <!-- ✅ logged in -->
+  <div
+    v-else
+    class="w-full max-w-[1200px] mx-auto mt-20 bg-[#0B0A0A] px-4"
+  >
+    <!-- HEADER -->
+    <div class="grid grid-cols-1 md:grid-cols-3 items-center gap-4 pt-6">
+      <!-- ปุ่มซ้าย (จอใหญ่) -->
+      <div class="hidden md:flex justify-start">
+        <button
+          @click="openFavPopup"
+          class="w-[200px] h-[45px] bg-[#90CB38] hover:bg-[#699627] rounded-2xl text-white cursor-pointer"
+        >
+          จุ่มหนังจากรายการโปรด
+        </button>
+      </div>
 
       <!-- title -->
       <h1 class="text-2xl md:text-3xl font-medium text-center">
         รายการโปรด
       </h1>
 
-      <button
-        @click="openFavPopup"
-        class="bg-[#90CB38] hover:bg-[#699627] rounded-2xl cursor-pointer px-4 py-2"
-      >
-        จุ่มหนังจากรายการโปรด
-      </button>
+      <!-- balance -->
+      <div class="hidden md:block"></div>
 
-      <!-- Popup เลือกสุ่ม -->
-      <PopupFav v-if="showFavPopup" :key="favPopupKey" @close="showFavPopup = false" @result="openResult" />
-
-      <!-- Popup ผลลัพธ์ -->
-      <PopupResultFav v-if="resultMovie" :movie="resultMovie" @retry="retrySpin" @view="openMovieDetail" />
-
-
+      <!-- ปุ่มมือถือ -->
+      <div class="flex md:hidden justify-center">
+        <button
+          @click="openFavPopup"
+          class="w-full max-w-[240px] h-[45px] bg-[#90CB38] hover:bg-[#699627] rounded-2xl text-white"
+        >
+          จุ่มหนังจากรายการโปรด
+        </button>
+      </div>
     </div>
 
-    <!-- list -->
-<div class="bg-[#0B0A0A] text-white w-full rounded-xl h-full p-8 pt-4">
-  <transition name="fade" mode="out-in">
-    <!-- ⏳ loading -->
-    <div
-      v-if="isLoadingMovies"
-      class="grid gap-3.5 px-4 pt-3
-             grid-cols-2
-             sm:grid-cols-3
-             md:grid-cols-4
-             lg:grid-cols-5
-             xl:grid-cols-6"
-    >
-      <SkeletonCatagorySkeletonMovieList :count="20" />
-    </div>
+    <!-- LIST -->
+    <div class="mt-6 pb-16 text-white">
+      <transition name="fade" mode="out-in">
+        <SkeletonCatagorySkeletonMovieList
+          v-if="isLoadingMovies"
+          :count="20"
+        />
 
-    <!-- ✅ loaded -->
-
-
-
-        <div v-else class="grid gap-3.5 px-4 pt-3
-         grid-cols-2
-         sm:grid-cols-3
-         md:grid-cols-4
-         lg:grid-cols-5
-         xl:grid-cols-6">
-          <CardM v-for="movie in movies" :key="movie.id" :movie="movie"
-            @removed="movies = movies.filter(m => m.id !== $event)" @open="openPopup" />
+        <div
+          v-else-if="movies.length"
+          class="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
+        >
+          <CardM
+            v-for="movie in movies"
+            :key="movie.id"
+            :movie="movie"
+            @removed="removeMovie"
+            @open="openPopup"
+          />
         </div>
 
+        <p
+          v-else
+          class="text-center text-gray-500 mt-10"
+        >
+          ยังไม่มีหนังในรายการโปรด
+        </p>
       </transition>
-
-      <PopupM v-if="showPopup" :selectedId="selectedId" @close="showPopup = false" />
     </div>
 
     <!-- popup movie -->
@@ -111,8 +123,16 @@
         <div class="flex-1 border-b border-gray-700"></div>
       </div>
 
-      <div v-if="userTags.length" class="flex gap-2 flex-wrap text-sm">
-        <span v-for="tag in userTags" :key="tag.id" class="px-3 py-1 rounded-full bg-green-600/20 text-green-400">
+      <p class="text-gray-500 text-sm mb-3">
+        จากแนวหนังที่คุณชื่นชอบ
+      </p>
+
+      <div v-if="userTags.length" class="flex gap-2 flex-wrap text-sm mb-4">
+        <span
+          v-for="tag in userTags"
+          :key="tag.id"
+          class="px-3 py-1 rounded-full bg-green-600/20 text-green-400"
+        >
           # {{ tag.name }}
         </span>
       </div>
@@ -127,14 +147,22 @@ import { ref, computed, onMounted, onUnmounted } from "vue"
 import { useRouter } from "vue-router"
 import type { Movie } from "../Type/tmdb"
 import { useTMDB } from "../composables/useTMDB"
-import { useFetch } from "nuxt/app";
 
-/* ---------------- router ---------------- */
+/* components */
+import cardM from "../components/cardM.vue"
+import PopupM from "../components/popupM.vue"
+import PopupFav from "../components/popupfav.vue"
+import PopupResultFav from "../components/popupResultFav.vue"
+import Recomment from "../components/recomment.vue"
+
+/* router */
 const router = useRouter()
 
-/* ---------------- login check ---------------- */
-const pending = ref(true)
-const error = ref<any>(null)
+/* login */
+const { pending, error } = await useFetch("/api/profile", {
+  credentials: "include",
+  throw: false
+})
 
 const isLoggedIn = computed(() => !pending.value && !error.value)
 
@@ -146,41 +174,40 @@ const goToLogin = () => {
 const movies = ref<Movie[]>([])
 const isLoadingMovies = ref(true)
 
-/** 🔁 กดสุ่มใหม่ */
-const retrySpin = () => {
-  resultMovie.value = null
-  showFavPopup.value = true
+/* popup movie */
+const showPopup = ref(false)
+const selectedId = ref<number | null>(null)
+
+const openPopup = (id: number) => {
+  selectedId.value = id
+  showPopup.value = true
 }
 
-/** 👁️ ดูรายละเอียด */
-const openMovieDetail = (id: number) => {
-  resultMovie.value = null
-  openPopup(id)
+const removeMovie = (id: number) => {
+  movies.value = movies.value.filter(m => m.id !== id)
 }
 
-/** เปิด popup สุ่ม */
+/* popup fav */
+const showFavPopup = ref(false)
+const resultMovie = ref<Movie | null>(null)
+
 const openFavPopup = () => {
   showFavPopup.value = true
 }
 
-/** รับผลลัพธ์จาก PopupFav */
 const openResult = (movie: Movie) => {
   resultMovie.value = movie
   showFavPopup.value = false
 }
 
-/* ---------------- movies ---------------- */
-const favoriteIds = ref<number[]>([])
-const resultMovie = ref<Movie | null>(null)
-const showFavPopup = ref(false)
+const retrySpin = () => {
+  resultMovie.value = null
+  showFavPopup.value = true
+}
 
-/* ---------------- movie popup ---------------- */
-const showPopup = ref(false)
-const selectedId = ref<number | null>(null)
-
-function openPopup(id: number) {
-  selectedId.value = id
-  showPopup.value = true
+const openMovieDetail = (id: number) => {
+  resultMovie.value = null
+  openPopup(id)
 }
 
 /* user tags */
@@ -215,20 +242,6 @@ const handleEsc = (e: KeyboardEvent) => {
 }
 
 onMounted(async () => {
-  // Fetch profile for login check
-  pending.value = true
-  error.value = null
-  try {
-    await useFetch("/api/profile", {
-      credentials: "include"
-    })
-    error.value = null
-  } catch (err) {
-    error.value = err
-  } finally {
-    pending.value = false
-  }
-
   await loadFavorites()
 
   try {

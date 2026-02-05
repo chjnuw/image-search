@@ -8,12 +8,18 @@ export default defineNuxtConfig({
     plugins: [tailwindcss()],
   },
   runtimeConfig: {
+  // 👉 server ใช้
+  TMDB_READ_TOKEN: process.env.TMDB_READ_TOKEN,
+  TMDB_API_KEY: process.env.TMDB_API_KEY,
+
+  // 👉 client ใช้
+  public: {
+    apiBase: "http://127.0.0.1:8000",
     TMDB_READ_TOKEN: process.env.TMDB_READ_TOKEN,
     TMDB_API_KEY: process.env.TMDB_API_KEY,
-    public: {
-      apiBase: "http://127.0.0.1:8000",
-    },
   },
+},
+
   typescript: {
     strict: true,
   },

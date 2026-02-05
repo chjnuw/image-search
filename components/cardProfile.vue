@@ -1,19 +1,38 @@
 <template>
   <div
-    class="border-2 border-white/20 px-6 py-8 w-[1100px] bg-[#D9D9D9]/10 rounded-4xl flex flex-col mt-35 gap-6 justify-center items-center"
+    class="border-2 border-white/20
+           px-4 sm:px-6
+           py-5 sm:py-7
+           w-full max-w-[900px]
+           bg-[#D9D9D9]/10
+           rounded-3xl sm:rounded-4xl
+           flex flex-col
+           mt-20 sm:mt-24 lg:mt-28
+           gap-5 sm:gap-6
+           justify-center items-center
+           mx-auto"
   >
     <!-- รูปโปรไฟล์ -->
     <div class="relative">
       <img
         v-if="previewImage || userData.image"
         :src="previewImage || userData.image"
-        class="w-[120px] h-[120px] md:w-[150px] md:h-[150px] rounded-full object-cover border-2 border-white"
+        class="w-[90px] h-[90px]
+               sm:w-[110px] sm:h-[110px]
+               md:w-[130px] md:h-[130px]
+               rounded-full object-cover border-2 border-white"
       />
 
       <!-- ไม่มีรูป -->
       <div
         v-else
-        class="w-[120px] h-[120px] md:w-[150px] md:h-[150px] rounded-full border-2 border-white flex items-center justify-center text-white text-5xl font-bold select-none"
+        class="w-[90px] h-[90px]
+               sm:w-[110px] sm:h-[110px]
+               md:w-[130px] md:h-[130px]
+               rounded-full border-2 border-white
+               flex items-center justify-center
+               text-white text-3xl sm:text-4xl
+               font-bold select-none"
         :class="avatarBg"
       >
         {{ userInitial }}
@@ -23,7 +42,11 @@
       <label
         v-if="isEditing"
         for="fileInput"
-        class="w-8 h-8 bg-black/60 rounded-full absolute bottom-2 right-2 flex justify-center items-center cursor-pointer hover:bg-black/80"
+        class="w-7 h-7 sm:w-8 sm:h-8
+               bg-black/60 rounded-full
+               absolute bottom-2 right-2
+               flex justify-center items-center
+               cursor-pointer hover:bg-black/80"
       >
         ✎
       </label>
@@ -38,22 +61,26 @@
     </div>
 
     <!-- Username -->
-    <div class="flex flex-col w-full max-w-[363px] gap-1">
+    <div class="flex flex-col w-full max-w-[320px] sm:max-w-[363px] gap-1">
       <label class="text-white text-sm font-bold">ชื่อผู้ใช้</label>
       <input
         v-model="userData.username"
         :disabled="!isEditing"
-        class="w-full h-12 bg-white/40 rounded-2xl px-4 text-white disabled:cursor-not-allowed"
+        class="w-full h-11 sm:h-12
+               bg-white/40 rounded-2xl
+               px-4 text-white disabled:cursor-not-allowed"
       />
     </div>
 
     <!-- Email -->
-    <div class="flex flex-col w-full max-w-[363px] gap-1">
+    <div class="flex flex-col w-full max-w-[320px] sm:max-w-[363px] gap-1">
       <label class="text-white text-sm font-bold">อีเมล</label>
       <input
         v-model="userData.email"
         disabled
-        class="w-full h-12 bg-white/20 rounded-2xl px-4 text-white cursor-not-allowed"
+        class="w-full h-11 sm:h-12
+               bg-white/20 rounded-2xl
+               px-4 text-white cursor-not-allowed"
       />
     </div>
 
@@ -61,25 +88,25 @@
     <div class="flex flex-col gap-2 relative">
       <p class="text-white text-sm font-bold text-center">รสนิยมภาพยนตร์</p>
 
-      <!-- 🔹 โหมดดู -->
+      <!-- view -->
       <div v-if="!isEditing" class="flex flex-wrap gap-3 justify-center px-4">
         <div
           v-for="tag in userTags.slice(0, 3)"
           :key="tag.id"
-          class="px-5 py-2 rounded-full bg-white/30 backdrop-blur-md text-white font-semibold text-sm border border-white/20 shadow-md"
+          class="px-4 py-2 rounded-full bg-white/30 backdrop-blur-md text-white font-semibold text-sm border border-white/20 shadow-md"
         >
           {{ tag.name }}
         </div>
       </div>
 
-      <!-- 🔹 โหมดแก้ -->
-      <div v-else class="flex flex-wrap gap-3 justify-center max-w-[600px]">
+      <!-- edit -->
+      <div v-else class="flex flex-wrap gap-3 justify-center max-w-[520px]">
         <button
           v-for="tag in allTags"
           :key="tag.id"
           @click="toggleTag(tag.id)"
           :disabled="!selectedTags.includes(tag.id) && selectedTags.length >= 3"
-          class="px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+          class="px-3.5 py-2 rounded-full text-sm font-semibold transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
           :class="
             selectedTags.includes(tag.id)
               ? 'bg-[#90CB38] text-white'
@@ -98,15 +125,20 @@
       </p>
     </div>
 
-    <!-- ปุ่ม Edit / Confirm -->
+    <!-- ปุ่ม -->
     <button
       @click="toggleEdit"
-      class="w-[180px] h-[45px] bg-[#90CB38] rounded-2xl text-white font-medium text-lg hover:bg-[#7fbb32]"
+      class="w-[150px] sm:w-[170px]
+             h-[40px] sm:h-[44px]
+             bg-[#90CB38]
+             rounded-2xl
+             text-white font-medium text-base sm:text-lg
+             hover:bg-[#7fbb32]"
     >
-      {{ isEditing ? "Confirm" : "Edit" }}
+      {{ isEditing ? "ยืนยัน" : "แก้ไข" }}
     </button>
 
-    <!-- Delete account -->
+    <!-- delete -->
     <p
       class="text-sm text-white/70 underline cursor-pointer hover:text-red-400"
       @click="showDeletePopup = true"
@@ -117,6 +149,8 @@
     <DeletePopup v-if="showDeletePopup" @close="showDeletePopup = false" />
   </div>
 </template>
+
+
 
 <script setup>
 import { ref, watchEffect } from "vue";
