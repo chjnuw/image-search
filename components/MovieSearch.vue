@@ -106,7 +106,7 @@ import { useGlobalLoading } from "../composables/useGlobalLoading";
 import { useSearchState } from "../composables/useSearchState";
 import { useRouter } from "vue-router";
 
-const { imageResults, isImageSearch, imagePreview } = useSearchState();
+const { imageResults, isImageSearch, imagePreview, imageAnchor } = useSearchState();
 const { searchMovies, getMovieDetailsEN, getMovieDetails, searchMovieByImage } =
   useTMDB();
 const router = useRouter();
@@ -126,11 +126,9 @@ const onBlur = () => {
 watch(query, (val) => {
   clearTimeout(timer);
 
-  isImageSearch.value = false;
-  if (!val || val.length < 2) {
-    movies.value = [];
-    open.value = false;
-    return;
+  if (val && val.length >= 2) {
+    isImageSearch.value = false;
+    imageAnchor.value = null;
   }
 
   open.value = true;
@@ -164,6 +162,7 @@ function closeSearchpopup() {
 const emit = defineEmits<{
   (e: "select", movie: Movie): void;
   (e: "close"): void;
+  (e: "image-search"): void;
 }>();
 
 const focusInput = async () => {
@@ -206,10 +205,19 @@ async function onImageSearch(e: Event) {
   const file = input.files?.[0];
   if (!file) return;
 
+  imageResults.value = [];
+  isImageSearch.value = false;
+  imagePreview.value = null;
+
+  open.value = false;
+  query.value = "";
+  movies.value = [];
+
   start();
 
   try {
     console.log("IMAGE FILE:", file); // 🔴 debug
+    emit("image-search");
 
     // preview รูป
     imagePreview.value = URL.createObjectURL(file);
@@ -244,7 +252,6 @@ async function onImageSearch(e: Event) {
     input.value = "";
   }
 }
-
 </script>
 <style scoped>
 .fade-scale-enter-active,

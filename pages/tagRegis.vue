@@ -59,7 +59,6 @@
 definePageMeta({ layout: 'login' })
 
 import { ref } from 'vue'
-import { useRoute, navigateTo } from '#app'
 
 /* ---------- ROUTE ---------- */
 const route = useRoute()

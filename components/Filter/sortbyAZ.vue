@@ -1,40 +1,64 @@
 <template>
-  <div class="relative flex items-center gap-2">
+  <div class="relative inline-flex items-center">
+    <!-- Trigger -->
     <button
-      class="px-4 py-2 bg-[#A0E13E] font-bold text-white text-shadow-lg/20 rounded-md hover:bg-[#90CB38] transition flex justify-between items-center cursor-pointer"
       @click="openFilterAZDrop = !openFilterAZDrop"
+      class="flex items-center gap-2 px-4 py-2 rounded-full
+             bg-[#A0E13E] text-black font-semibold
+             hover:bg-[#90CB38] active:scale-95
+             transition-all duration-200 shadow-md cursor-pointer"
     >
-      {{ sortLabel }}
+      <span class="text-sm">{{ sortLabel }}</span>
+
       <Icon
         icon="weui:arrow-outlined"
-        class="ml-1 w-4 h-4 text-white transition-transform duration-200"
+        class="w-4 h-4 transition-transform duration-200"
         :class="{ 'rotate-90': openFilterAZDrop }"
       />
     </button>
 
-    <div
-      v-if="openFilterAZDrop"
-      class="absolute top-full right-0 p-2 mt-2 bg-[#0B0A0A]/50 shadow-lg rounded-md z-50 flex flex-wrap animate-fade gap-3 text-md "
+    <!-- Dropdown -->
+    <Transition
+      enter-active-class="transition ease-out duration-150"
+      enter-from-class="opacity-0 scale-95 -translate-y-1"
+      enter-to-class="opacity-100 scale-100 translate-y-0"
+      leave-active-class="transition ease-in duration-100"
+      leave-from-class="opacity-100 scale-100"
+      leave-to-class="opacity-0 scale-95"
     >
-      <button
-        class="px-3 py-1 bg-red-600/80 text-white rounded hover:bg-red-600 text-left w-full cursor-pointer"
-        @click="resetSort"
+      <div
+        v-if="openFilterAZDrop"
+        class="absolute right-0 top-full mt-2 w-44
+               rounded-xl border border-white/10
+               bg-[#0B0A0A]/80 backdrop-blur-md
+               shadow-xl z-50 p-2 space-y-1"
       >
-        ล้าง
-      </button>
-      <button
-        class="px-3 py-1 bg-gray-700 text-white rounded hover:bg-gray-600 text-left w-full cursor-pointer"
-        @click="sortAZ"
-      >
-        ชื่อ ก → ฮ
-      </button>
-      <button
-        class="px-3 py-1 bg-gray-700 text-white rounded hover:bg-gray-600 text-left w-full cursor-pointer"
-        @click="sortZA"
-      >
-        ชื่อ ฮ → ก
-      </button>
-    </div>
+        <button
+          @click="resetSort"
+          class="w-full px-3 py-2 rounded-lg text-sm text-red-400
+                 hover:bg-red-500/10 hover:text-red-300
+                 transition cursor-pointer text-left"
+        >
+          ล้างการเรียง
+        </button>
+
+        <button
+          @click="sortAZ"
+          class="w-full px-3 py-2 rounded-lg text-sm text-white
+                 hover:bg-white/10 transition cursor-pointer text-left"
+        >
+          ชื่อ ก → ฮ
+        </button>
+
+        <button
+          @click="sortZA"
+          class="w-full px-3 py-2 rounded-lg text-sm text-white
+                 hover:bg-white/10 transition cursor-pointer text-left"
+        >
+          ชื่อ ฮ → ก
+        </button>
+      </div>
+    </Transition>
   </div>
 </template>
 

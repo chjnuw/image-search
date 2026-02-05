@@ -1,9 +1,5 @@
 <template>
   <div class="px-2 sm:px-4 mx-auto">
-    <div class="p-4 flex items-center gap-3">
-      <h2 class="font-bold text-2xl whitespace-nowrap">หนังยอดนิยม</h2>
-      <div class="flex-1 border-b-2"></div>
-    </div>
     <div
       class="flex py-4 px-2 overflow-y-hidden overflow-x-auto custom-scrollbar"
     >
@@ -16,7 +12,7 @@
         />
       </div>
       <div class="flex justify-center items-center ml-4 w-32 flex-shrink-0">
-        <button
+        <button @click="goTocategoryPopular"
           class="hover:bg-gray-600 p-4 rounded-full flex flex-col items-center text-green-500 cursor-pointer"
         >
           <h1 class="text-center text-sm sm:text-base">
@@ -42,6 +38,10 @@ onMounted(async () => {
   const res = await getPopularMovies();
   movies.value = res?.results ?? [];
 });
+
+const goTocategoryPopular = () => {
+  window.location.href = "/catagory";
+};
 </script>
 
 <style></style>
