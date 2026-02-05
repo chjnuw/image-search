@@ -21,25 +21,25 @@
             class="hover:cursor-pointer hover:text-[#a0e13e] duration-300"
             :class="{ 'text-[#a0e13e]': $route.path === '/' }"
           >
-            <NuxtLink to="/" > หน้าหลัก </NuxtLink>
+            <NuxtLink to="/"> หน้าหลัก </NuxtLink>
           </li>
           <li
             class="hover:cursor-pointer hover:text-[#a0e13e] duration-300"
             :class="{ 'text-[#a0e13e]': $route.path === '/catagory' }"
           >
-            <NuxtLink to="/catagory" > หมวดหมู่ </NuxtLink>
+            <NuxtLink to="/catagory"> หมวดหมู่ </NuxtLink>
           </li>
           <li
             class="hover:cursor-pointer hover:text-[#a0e13e] duration-300"
             :class="{ 'text-[#a0e13e]': $route.path === '/actor' }"
           >
-            <NuxtLink to="/actor" > นักแสดง </NuxtLink>
+            <NuxtLink to="/actor"> นักแสดง </NuxtLink>
           </li>
           <li
             class="hover:cursor-pointer hover:text-[#a0e13e] duration-300"
-            :class="{ 'text-[#a0e13e]': $route.path === '' }"
+            :class="{ 'text-[#a0e13e]': $route.path === '/randomscreen' }"
           >
-            <NuxtLink to="" > สุ่มภาพยนตร์ </NuxtLink>
+            <NuxtLink to="randomscreen"> สุ่มภาพยนตร์ </NuxtLink>
           </li>
         </div>
       </div>
@@ -69,7 +69,8 @@
 
           <div
             v-else-if="userName"
-            class="w-9 h-9 rounded-full bg-[#A0E13E] text-black flex items-center justify-center font-bold uppercase"
+            class="w-9 h-9 rounded-full flex items-center justify-center font-bold uppercase text-white border border-white/20"
+            :class="avatarBg"
           >
             {{ userInitial }}
           </div>
@@ -247,7 +248,28 @@ onMounted(async () => {
   }
 });
 
+const avatarColors = [
+  "bg-[#F87171]",
+  "bg-[#FB923C]",
+  "bg-[#FACC15]",
+  "bg-[#4ADE80]",
+  "bg-[#22D3EE]",
+  "bg-[#60A5FA]",
+  "bg-[#A78BFA]",
+  "bg-[#F472B6]",
+];
 
+const avatarBg = computed(() => {
+  if (!userName.value) return "bg-gray-400";
+
+  let hash = 0;
+  for (let i = 0; i < userName.value.length; i++) {
+    hash = userName.value.charCodeAt(i) + ((hash << 5) - hash);
+  }
+
+  const index = Math.abs(hash) % avatarColors.length;
+  return avatarColors[index];
+});
 </script>
 
 <style>

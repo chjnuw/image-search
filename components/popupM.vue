@@ -413,6 +413,7 @@ import type { Movie, CreditsResponse, MovieImagesResponse } from "../Type/tmdb";
 import { useGlobalLoading } from "../composables/useGlobalLoading";
 import { normalizeAgeRating } from "../utils/ageRating";
 
+
 const {
   getMovieDetails,
   getMovieDetailsEN,

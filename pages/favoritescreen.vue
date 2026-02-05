@@ -127,16 +127,14 @@ import { ref, computed, onMounted, onUnmounted } from "vue"
 import { useRouter } from "vue-router"
 import type { Movie } from "../Type/tmdb"
 import { useTMDB } from "../composables/useTMDB"
-
+import { useFetch } from "nuxt/app";
 
 /* ---------------- router ---------------- */
 const router = useRouter()
 
 /* ---------------- login check ---------------- */
-const { pending, error } = await useFetch("/api/profile", {
-  credentials: "include",
-  throw: false
-})
+const pending = ref(true)
+const error = ref<any>(null)
 
 const isLoggedIn = computed(() => !pending.value && !error.value)
 
@@ -172,9 +170,9 @@ const openResult = (movie: Movie) => {
 }
 
 /* ---------------- movies ---------------- */
-const movies = ref<Movie[]>([])
 const favoriteIds = ref<number[]>([])
-const isLoadingMovies = ref(true)
+const resultMovie = ref<Movie | null>(null)
+const showFavPopup = ref(false)
 
 /* ---------------- movie popup ---------------- */
 const showPopup = ref(false)
@@ -217,6 +215,20 @@ const handleEsc = (e: KeyboardEvent) => {
 }
 
 onMounted(async () => {
+  // Fetch profile for login check
+  pending.value = true
+  error.value = null
+  try {
+    await useFetch("/api/profile", {
+      credentials: "include"
+    })
+    error.value = null
+  } catch (err) {
+    error.value = err
+  } finally {
+    pending.value = false
+  }
+
   await loadFavorites()
 
   try {

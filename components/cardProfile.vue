@@ -5,14 +5,19 @@
     <!-- รูปโปรไฟล์ -->
     <div class="relative">
       <img
-        :src="previewImage || userData.image || '/img/avatar.png'"
-        class="
-          w-[120px] h-[120px]
-          md:w-[150px] md:h-[150px]
-          rounded-full object-cover
-          border-2 border-white
-        "
+        v-if="previewImage || userData.image"
+        :src="previewImage || userData.image"
+        class="w-[120px] h-[120px] md:w-[150px] md:h-[150px] rounded-full object-cover border-2 border-white"
       />
+
+      <!-- ไม่มีรูป -->
+      <div
+        v-else
+        class="w-[120px] h-[120px] md:w-[150px] md:h-[150px] rounded-full border-2 border-white flex items-center justify-center text-white text-5xl font-bold select-none"
+        :class="avatarBg"
+      >
+        {{ userInitial }}
+      </div>
 
       <!-- ปุ่มเปลี่ยนรูป -->
       <label
@@ -57,10 +62,7 @@
       <p class="text-white text-sm font-bold text-center">รสนิยมภาพยนตร์</p>
 
       <!-- 🔹 โหมดดู -->
-      <div
-        v-if="!isEditing"
-        class="flex flex-wrap gap-3 justify-center px-4"
-      >
+      <div v-if="!isEditing" class="flex flex-wrap gap-3 justify-center px-4">
         <div
           v-for="tag in userTags.slice(0, 3)"
           :key="tag.id"
@@ -115,7 +117,6 @@
     <DeletePopup v-if="showDeletePopup" @close="showDeletePopup = false" />
   </div>
 </template>
-
 
 <script setup>
 import { ref, watchEffect } from "vue";
@@ -193,28 +194,60 @@ const toggleTag = (tagId) => {
 /* ---------- Edit / Confirm ---------- */
 const toggleEdit = async () => {
   if (!isEditing.value) {
-    selectedTags.value = userTags.value.map(t => t.id)
-    isEditing.value = true
-    return
+    selectedTags.value = userTags.value.map((t) => t.id);
+    isEditing.value = true;
+    return;
   }
 
-  const formData = new FormData()
-  formData.append("username", userData.value.username)
-  formData.append("tags", JSON.stringify(selectedTags.value))
+  const formData = new FormData();
+  formData.append("username", userData.value.username);
+  formData.append("tags", JSON.stringify(selectedTags.value));
   if (selectedFile.value) {
-    formData.append("image", selectedFile.value)
+    formData.append("image", selectedFile.value);
   }
 
   const updatedProfile = await $fetch("/api/profile", {
     method: "PUT",
     body: formData,
     credentials: "include",
-  })
+  });
 
-  isEditing.value = false
-  previewImage.value = null
-  selectedFile.value = null
+  isEditing.value = false;
+  previewImage.value = null;
+  selectedFile.value = null;
 
-  window.location.reload()
-}
+  window.location.reload();
+};
+
+import { computed } from "vue";
+
+const avatarColors = [
+  "bg-[#F87171]", // red
+  "bg-[#FB923C]", // orange
+  "bg-[#FACC15]", // yellow
+  "bg-[#4ADE80]", // green
+  "bg-[#22D3EE]", // cyan
+  "bg-[#60A5FA]", // blue
+  "bg-[#A78BFA]", // purple
+  "bg-[#F472B6]", // pink
+];
+
+// ตัวอักษรแรก
+const userInitial = computed(() => {
+  if (!userData.value.username) return "?";
+  return userData.value.username.charAt(0).toUpperCase();
+});
+
+// สี avatar (สุ่มแต่คงที่)
+const avatarBg = computed(() => {
+  if (!userData.value.username) return "bg-gray-400";
+
+  let hash = 0;
+  for (let i = 0; i < userData.value.username.length; i++) {
+    hash = userData.value.username.charCodeAt(i) + ((hash << 5) - hash);
+  }
+
+  const index = Math.abs(hash) % avatarColors.length;
+  return avatarColors[index];
+});
 </script>

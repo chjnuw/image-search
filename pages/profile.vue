@@ -25,22 +25,24 @@
   </div>
 
   <!-- ล็อกอินแล้ว -->
-  <div v-else class="w-full min-h-screen flex bg-[#0B0A0A] gap-20 px-6 pb-20 ">
+  <div v-else class="w-full min-h-screen flex bg-[#0B0A0A] gap-20 px-6 pb-20">
     <div
-      class="w-[350px] h-[450px] bg-[#0B0A0A] mt-35 rounded-4xl flex flex-col shadow-2xl justify-between "
+      class="w-[350px] h-[450px] bg-[#0B0A0A] mt-35 rounded-4xl flex flex-col shadow-2xl justify-between"
     >
       <div class="">
         <div
           @click="activeTab = 'profile'"
           class="px-4 py-2 bg-[#0B0A0A] hover:bg-[#90CB38] cursor-pointer flex items-center justify-center"
-          :class="{ 'bg-[#90CB38]': activeTab === 'profile' }">
+          :class="{ 'bg-[#90CB38]': activeTab === 'profile' }"
+        >
           <h1 class="text-lg">Profile</h1>
         </div>
 
         <div
           @click="activeTab = 'password'"
           class="px-4 py-2 bg-[#0B0A0A] hover:bg-[#90CB38] cursor-pointer flex items-center justify-center"
-          :class="{ 'bg-[#90CB38]': activeTab === 'password' }">
+          :class="{ 'bg-[#90CB38]': activeTab === 'password' }"
+        >
           <h1 class="text-lg">Password</h1>
         </div>
       </div>
@@ -52,26 +54,20 @@
         <h1 class="text-[#eb1313] text-lg">Log out</h1>
       </div>
     </div>
+
+    <!-- CONTENT -->
+    <div class="flex-1 w-full">
+      <CardProfile v-if="activeTab === 'profile'" />
+      <CardProfilepassword v-if="activeTab === 'password'" />
+    </div>
+
+    <logout v-if="showLogout" @close="showLogout = false" />
   </div>
-
-  <!-- CONTENT -->
-  <div class="flex-1 w-full">
-    <CardProfile v-if="activeTab === 'profile'" />
-    <CardProfilepassword v-if="activeTab === 'password'" />
-  </div>
-
-  <logout v-if="showLogout" @close="showLogout = false" />
-</div>
-
 </template>
 
 <script setup>
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
-
-import CardProfile from "~/components/cardProfile.vue";
-import CardProfilepassword from "~/components/cardProfilepassword.vue";
-import logout from "~/components/logout.vue";
 
 const router = useRouter();
 
@@ -94,5 +90,4 @@ const isLoggedIn = computed(() => {
 const goToLogin = () => {
   router.push("/logInscreen");
 };
-
 </script>
