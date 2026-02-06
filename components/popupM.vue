@@ -58,6 +58,7 @@
                 <button
                   v-for="tag in selectedItem.tags"
                   :key="tag.id"
+                  @click="goToCategory(tag)"
                   class="p-2 bg-gray-700 rounded-md hover:bg-gray-800 transition cursor-pointer text-xs"
                 >
                   # {{ tag.name }}
@@ -103,25 +104,6 @@
                     }}
                   </p>
                 </div>
-              </div>
-
-              <div class="mb-3">
-                <p class="text-gray-400 text-md">คำค้นหา</p>
-                <div
-                  v-if="selectedItem.keywords?.length"
-                  class="flex flex-wrap gap-1 p-2"
-                >
-                  <button
-                    v-for="k in selectedItem.keywords"
-                    :key="k.id"
-                    class="p-2 bg-gray-700 rounded-md text-xs hover:bg-gray-800 transition cursor-pointer"
-                  >
-                    # {{ k.name }}
-                  </button>
-                </div>
-                <p v-else class="text-white/50 italic text-sm p-2">
-                  ยังไม่มีคำค้นหาถูกเพิ่ม
-                </p>
               </div>
             </div>
             <div
@@ -329,7 +311,7 @@
                   :character="a.character"
                   loading="lazy"
                   class="border"
-                   @click="openActorPopup(a.id)"
+                  @click="openActorPopup(a.id)"
                 />
               </div>
               <p v-else class="text-white/50 italic text-sm p-2">
@@ -349,7 +331,7 @@
                   :job="c.job"
                   loading="lazy"
                   class="border"
-                   @click="openActorPopup(c.id)"
+                  @click="openActorPopup(c.id)"
                 />
               </div>
               <p v-else class="text-white/50 italic text-sm p-2">
@@ -413,7 +395,6 @@ import type { Movie, CreditsResponse, MovieImagesResponse } from "../Type/tmdb";
 import { useGlobalLoading } from "../composables/useGlobalLoading";
 import { normalizeAgeRating } from "../utils/ageRating";
 
-
 const {
   getMovieDetails,
   getMovieDetailsEN,
@@ -475,12 +456,20 @@ const handleToggleFavorite = async () => {
       isFavorite.value = false;
       alert("ลบออกจากรายการโปรดแล้ว 💔");
     } else {
+      const genreIds = Array.isArray(selectedItem.value.genre_ids)
+        ? selectedItem.value.genre_ids
+        : [];
+
       await $fetch("/api/favorite", {
         method: "POST",
-        body: { movieId: selectedItem.value.id },
+        body: {
+          movieId: selectedItem.value.id,
+          genreIds,
+        },
         credentials: "include",
       });
-
+      tastePieRef.value?.refreshTaste();
+      
       isFavorite.value = true;
       alert("เพิ่มเข้ารายการโปรดแล้ว ❤️");
     }
@@ -880,6 +869,25 @@ const closeActorPopup = () => {
   showActorPopup.value = false;
   selectedActorId.value = null;
 };
+
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+
+const goToCategory = (tag: any) => {
+  emit("close");
+
+  setTimeout(() => {
+    router.push({
+      path: "/catagory",
+      query: {
+        genre: tag.id,
+        name: tag.name,
+      },
+    });
+  }, 200);
+};
+const tastePieRef = ref<any>(null);
 
 import {
   lockBodyScroll,

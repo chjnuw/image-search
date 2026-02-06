@@ -5,6 +5,7 @@
         v-for="movie in movies"
         :key="movie.id"
         class="transition-transform duration-300 cursor-pointer"
+         @click="$emit('open', movie.id)"
       >
         <CardM
           :movie="movie"
@@ -16,6 +17,7 @@
       </div>
     </div>
   </div>
+  
 </template>
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue";
@@ -51,6 +53,10 @@ console.log("recommend res:", res);
     isLoadingDetail.value = false;
   }
 };
+
+defineEmits<{
+  (e: "open", id: number): void;
+}>();
 
 const cardClass = computed(() => {
   switch (props.size) {

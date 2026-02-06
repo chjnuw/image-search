@@ -78,6 +78,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from "vue";
 import { useTMDB } from "../composables/useTMDB";
+import { useGlobalLoading } from "../composables/useGlobalLoading";
 
 const showPopup = ref(false);
 const selectedActor = ref<any>(null);

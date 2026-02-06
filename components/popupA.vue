@@ -176,10 +176,10 @@
                     class="w-full bg-[#1E1E1E] text-white px-4 py-2 rounded-xl border border-white/10 transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-[#90CB38] focus:border-[#90CB38] hover:border-white/30"
                   >
                     <option value="movie">ภาพยนตร์</option>
-                    <option value="tv">ซีรีส์</option>
-                    <option value="guest">รายการทีวี / Guest</option>
+                    <!-- <option value="tv">ซีรีส์</option> -->
+                    <!-- <option value="guest">รายการทีวี / Guest</option> -->
                     <option value="crew-movie">เบื้องหลังภาพยนตร์</option>
-                    <option value="crew-tv">เบื้องหลังซีรีส์</option>
+                    <!-- <option value="crew-tv">เบื้องหลังซีรีส์</option> -->
                   </select>
                 </div>
               </div>

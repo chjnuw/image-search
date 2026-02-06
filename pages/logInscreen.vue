@@ -171,6 +171,7 @@ const handleToHomepage = async () => {
     errorMsg.value = "Server error";
   }
 };
+
 </script>
 
 <style></style>

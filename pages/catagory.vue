@@ -54,7 +54,7 @@
                 "
                 @click="
                   currentCategory !== category.key &&
-                    selectCategory(category.key)
+                  selectCategory(category.key)
                 "
               >
                 {{ category.label }}
@@ -112,10 +112,7 @@
             />
             <div
               v-else
-              class="grid gap-2 px-4 pt-6"
-              style="
-                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-              "
+              class="grid gap-4 px-4 py-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
             >
               <CardM
                 v-for="movie in movies"
@@ -184,7 +181,7 @@ const getMovies = async (
   category: string,
   genres: number[],
   providers: number[],
-  page = 1
+  page = 1,
 ) => {
   let res;
 
@@ -197,17 +194,17 @@ const getMovies = async (
       providers,
       genres, // genre filter
       sortMap[category], // sort
-      page
+      page,
     );
 
     // กรองผลลัพธ์ตาม Category ภายใน frontend
     if (filteredCategory === "now_playing") {
       res.results = res.results.filter(
-        (movie) => new Date(movie.release_date) <= new Date()
+        (movie) => new Date(movie.release_date) <= new Date(),
       );
     } else if (filteredCategory === "upcoming") {
       res.results = res.results.filter(
-        (movie) => new Date(movie.release_date) > new Date()
+        (movie) => new Date(movie.release_date) > new Date(),
       );
     }
   } else if (genres.length) {
@@ -249,7 +246,7 @@ const selectCategory = async (key: string) => {
       key,
       selectedGenres.value,
       selectedProviders.value,
-      currentPage.value
+      currentPage.value,
     );
 
     movies.value = res?.results ?? [];
@@ -277,12 +274,14 @@ onMounted(async () => {
   }
 });
 
-const selectedGenres = ref<number[]>([]);
+const selectedGenres = ref<number[]>([])
+
 
 const onGenreChange = async (newGenres: number[]) => {
   selectedGenres.value = newGenres;
   currentPage.value = 1;
   isLoadingMovies.value = true;
+  
   start();
 
   try {
@@ -290,7 +289,7 @@ const onGenreChange = async (newGenres: number[]) => {
       currentCategory.value,
       selectedGenres.value,
       selectedProviders.value,
-      currentPage.value
+      currentPage.value,
     );
     movies.value = res?.results ?? [];
   } finally {
@@ -339,7 +338,7 @@ async function loadMore() {
       currentCategory.value,
       selectedGenres.value,
       selectedProviders.value,
-      nextPage
+      nextPage,
     );
 
     if (res?.results?.length) {
@@ -366,7 +365,7 @@ function onProviderChange(providers: number[]) {
     currentCategory.value,
     selectedGenres.value,
     selectedProviders.value,
-    currentPage.value
+    currentPage.value,
   ).then((res) => {
     movies.value = res?.results ?? [];
     isLoadingMovies.value = false;
@@ -388,6 +387,48 @@ function handleSearchMovie(movie) {
   selectedId.value = movie.id;
   showPopup.value = true;
 }
+
+import { useRoute } from "vue-router";
+
+const route = useRoute();
+
+const genreId = computed(() => Number(route.query.genre));
+const genreName = computed(() => route.query.name);
+
+watch(
+  () => route.query.genre,
+  async (genre) => {
+    if (!genre) {
+      openStreamimgDrop.value = false;
+      return;
+    }
+
+    openStreamimgDrop.value = true;
+    selectedGenres.value = [Number(genre)];
+    currentPage.value = 1;
+    isLoadingMovies.value = true;
+    start();
+
+    try {
+      const res = await getMovies(
+        currentCategory.value,
+        selectedGenres.value,
+        selectedProviders.value,
+        currentPage.value,
+      );
+      movies.value = res?.results ?? [];
+    } finally {
+      isLoadingMovies.value = false;
+      stop();
+    }
+  },
+  { immediate: true },
+);
+
+
+const selectedGenreId = computed(() =>
+  Number(route.query.genre || null)
+)
 </script>
 
 <style>

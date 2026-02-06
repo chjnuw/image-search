@@ -45,9 +45,6 @@ export default defineEventHandler(async (event) => {
           },
         },
       );
-      console.log("USER TAG ROWS:", rows);
-      console.log("GENRE IDS:", genreIds);
-      console.log("🍪 user_id:", userId);
       movies.push(...(res?.results || []).slice(0, perGenre));
     }
 

@@ -8,6 +8,7 @@
           v-for="movie in movies"
           :key="movie.id"
           :movie="movie"
+          @click="$emit('open', movie.id)"
           class="aspect-[2/3] w-34 sm:w-40 object-cover rounded hover:scale-105 overflow-hidden flex-shrink-0"
         />
       </div>

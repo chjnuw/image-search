@@ -29,22 +29,16 @@
   <!-- ✅ ล็อกอินแล้ว -->
   <div
     v-else
-    class="relative mt-16 sm:mt-20 min-h-screen text-white
-    bg-gradient-to-br from-black via-[#0b0b0b] to-[#111]
-    flex flex-col lg:flex-row gap-6 lg:gap-8
-    p-4 sm:p-6 overflow-hidden"
+    class="relative mt-16 sm:mt-20 min-h-screen text-white bg-gradient-to-br from-black via-[#0b0b0b] to-[#111] flex flex-col lg:flex-row gap-6 lg:gap-8 p-4 sm:p-6 overflow-hidden"
   >
     <!-- glow bg -->
-    <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,#90CB3820,transparent_60%)]"></div>
+    <div
+      class="absolute inset-0 bg-[radial-gradient(circle_at_top,#90CB3820,transparent_60%)]"
+    ></div>
 
     <!-- LEFT : GENRE PANEL -->
     <div
-      class="relative z-10 w-full lg:w-1/4
-      bg-gradient-to-b from-[#111] to-[#0b0b0b]
-      rounded-2xl sm:rounded-3xl
-      p-4 sm:p-6
-      border border-[#222]
-      shadow-[0_0_30px_#000]"
+      class="relative z-10 w-full lg:w-1/4  bg-gradient-to-b from-[#111] to-[#0b0b0b] rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-[#222] shadow-[0_0_30px_#000]"
     >
       <h2
         class="text-lg sm:text-xl font-bold mb-4 text-[#90CB38] tracking-wide"
@@ -58,8 +52,7 @@
           :key="genre.id"
           @click="toggleGenre(genre.id)"
           :disabled="isDisabled(genre.id)"
-          class="px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm transition border
-          disabled:opacity-40 disabled:cursor-not-allowed"
+          class="px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm transition border disabled:opacity-40 disabled:cursor-not-allowed"
           :class="
             selectedGenres.includes(genre.id)
               ? 'bg-[#90CB38] text-black border-[#90CB38] shadow-[0_0_15px_#90CB38]'
@@ -73,12 +66,7 @@
       <button
         @click="spin"
         :disabled="selectedGenres.length === 0 || isSpinning"
-        class="relative overflow-hidden
-        w-full mt-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl
-        font-extrabold text-black bg-[#90CB38]
-        shadow-[0_0_25px_#90CB38]
-        hover:scale-105 transition
-        disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+        class="relative overflow-hidden w-full mt-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-extrabold text-black bg-[#90CB38] shadow-[0_0_25px_#90CB38] hover:scale-105 transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
       >
         🎰 สุ่มหนัง
       </button>
@@ -86,16 +74,10 @@
 
     <!-- RIGHT : SLOT -->
     <div
-      class="relative z-10 flex-1 flex items-center justify-center
-      mt-4 lg:mt-0"
+      class="relative z-10 flex-1 flex items-center justify-center mt-4 lg:mt-0 "
     >
       <div
-        class="relative w-full max-w-full sm:max-w-[520px]
-        bg-gradient-to-b from-[#111] to-[#0b0b0b]
-        rounded-2xl sm:rounded-[2rem]
-        p-4 sm:p-6
-        border border-[#222]
-        shadow-[0_0_40px_#000]"
+        class="relative w-full max-w-full sm:max-w-[520px] bg-gradient-to-b from-[#111] to-[#0b0b0b] rounded-2xl sm:rounded-[2rem] p-4 sm:p-6 border border-[#222] shadow-[0_0_40px_#000]"
       >
         <h2
           class="text-xl sm:text-2xl font-extrabold text-center mb-4 sm:mb-6 tracking-wide"
@@ -104,14 +86,15 @@
         </h2>
 
         <div
-          class="relative overflow-hidden h-[160px] sm:h-[180px]
-          rounded-2xl
-          border-4 border-[#90CB38]
-          shadow-[inset_0_0_30px_#000,0_0_30px_#90CB3840]"
+          class="relative overflow-hidden h-[160px] sm:h-[180px] rounded-2xl border-4 border-[#90CB38] shadow-[inset_0_0_30px_#000,0_0_30px_#90CB3840]"
         >
           <!-- fade -->
-          <div class="pointer-events-none absolute top-0 left-0 right-0 h-8 sm:h-10 bg-gradient-to-b from-black to-transparent z-10"></div>
-          <div class="pointer-events-none absolute bottom-0 left-0 right-0 h-8 sm:h-10 bg-gradient-to-t from-black to-transparent z-10"></div>
+          <div
+            class="pointer-events-none absolute top-0 left-0 right-0 h-8 sm:h-10 bg-gradient-to-b from-black to-transparent z-10"
+          ></div>
+          <div
+            class="pointer-events-none absolute bottom-0 left-0 right-0 h-8 sm:h-10 bg-gradient-to-t from-black to-transparent z-10"
+          ></div>
 
           <div
             class="transition-transform duration-[2000ms] ease-out"
@@ -120,9 +103,7 @@
             <div
               v-for="(movie, i) in slotMovies"
               :key="i"
-              class="h-[160px] sm:h-[180px]
-              flex items-center gap-4 sm:gap-5 px-4 sm:px-5
-              hover:bg-white/5 transition"
+              class="h-[160px] sm:h-[180px] flex items-center gap-4 sm:gap-5 px-4 sm:px-5 hover:bg-white/5 transition"
             >
               <img
                 :src="
@@ -130,8 +111,7 @@
                     ? 'https://image.tmdb.org/t/p/w500' + movie.poster_path
                     : '/img/no-poster.png'
                 "
-                class="w-[80px] sm:w-[100px] h-[120px] sm:h-[150px]
-                object-cover rounded-xl shadow-lg"
+                class="w-[80px] sm:w-[100px] h-[120px] sm:h-[150px] object-cover rounded-xl shadow-lg"
               />
               <h3 class="text-base sm:text-xl font-medium line-clamp-2">
                 {{ movie.title }}
@@ -152,7 +132,7 @@
     />
 
     <!-- DETAIL POPUP -->
-    <popupM
+    <PopupM
       v-if="showPopup && selectedId"
       :selectedId="selectedId"
       @close="closeDetail"
@@ -160,17 +140,15 @@
   </div>
 </template>
 
-
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useFetch, useRuntimeConfig } from "nuxt/app";
 
-const config = useRuntimeConfig()
-console.log("TOKEN:", config.public.TMDB_READ_TOKEN)
+const config = useRuntimeConfig();
+console.log("TOKEN:", config.public.TMDB_READ_TOKEN);
 
 const router = useRouter();
-
 
 /* ---------------- login check ---------------- */
 const data = ref(null);
@@ -200,7 +178,7 @@ onMounted(async () => {
           Authorization: `Bearer ${config.public.TMDB_READ_TOKEN}`,
           "Content-Type": "application/json;charset=utf-8",
         },
-      }
+      },
     );
 
     const genreData = await res.json();
@@ -244,8 +222,7 @@ const toggleGenre = (id: number) => {
 
 const isDisabled = (id: number) => {
   return (
-    selectedGenres.value.length === 3 &&
-    !selectedGenres.value.includes(id)
+    selectedGenres.value.length === 3 && !selectedGenres.value.includes(id)
   );
 };
 
@@ -274,13 +251,13 @@ const spin = async () => {
 
     const res = await fetch(
       `https://api.themoviedb.org/3/discover/movie?with_genres=${selectedGenres.value.join(
-        ","
+        ",",
       )}&sort_by=popularity.desc`,
       {
         headers: {
           Authorization: `Bearer ${config.public.TMDB_READ_TOKEN}`,
         },
-      }
+      },
     );
 
     const data = await res.json();
@@ -300,8 +277,7 @@ const spin = async () => {
 
     const resultIndex = Math.floor(Math.random() * movies.length);
 
-    translateY.value =
-      (movies.length * 2 + resultIndex) * 180;
+    translateY.value = (movies.length * 2 + resultIndex) * 180;
 
     resultMovie.value = movies[resultIndex];
 
@@ -314,7 +290,6 @@ const spin = async () => {
     isSpinning.value = false;
   }
 };
-
 
 /* ---------------- ACTIONS ---------------- */
 const retrySpin = () => {

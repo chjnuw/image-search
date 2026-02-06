@@ -54,6 +54,7 @@ const props = defineProps<{ movie: Movie }>();
 const emit = defineEmits<{
   (e: "open", id: number): void;
   (e: "toggle-favorite", id: number): void;
+  (e: "favorite-changed"): void;
   (e: "removed", id: number): void;
 }>();
 
@@ -83,7 +84,6 @@ const loadFavoriteState = async () => {
     isFavorite.value = false;
   }
 };
-
 const toggleFavorite = async () => {
   try {
     if (isFavorite.value) {
@@ -93,16 +93,24 @@ const toggleFavorite = async () => {
         credentials: "include",
       });
 
-      alert("ลบออกจากรายการโปรดแล้ว 💔");
+      isFavorite.value = false;
+      emit("favorite-changed")
       emit("removed", props.movie.id);
     } else {
+      const genreIds = Array.isArray(props.movie.genre_ids)
+        ? props.movie.genre_ids
+        : [];
+
       await $fetch("/api/favorite", {
         method: "POST",
-        body: { movieId: props.movie.id },
+        body: {
+          movieId: props.movie.id,
+          genreIds,
+        },
         credentials: "include",
       });
-
-      alert("เพิ่มเข้ารายการโปรดแล้ว ❤️");
+       isFavorite.value = true;
+       emit("favorite-changed")
     }
   } catch (err) {
     console.error(err);

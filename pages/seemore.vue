@@ -7,7 +7,7 @@
       class="bg-[#0B0A0A] text-white h-full justify-center rounded-xl max-w-[80%] mx-auto mb-20 m-4 p-6"
     >
       <div v-if="isImageSearch && imagePreview" class="mb-4">
-        <p class="text-sm text-gray-400 mb-2">ค้นหาด้วยรูป:</p>
+        <p class="text-lg text-gray-400 mb-2">ค้นหาด้วยรูป:</p>
         <img
           :src="imagePreview"
           class="h-32 rounded-lg border border-white/10"
@@ -30,7 +30,7 @@
         </span>
       </div>
 
-      <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div class="grid gap-4 px-4 py-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         <CardM v-for="m in movies" :key="m.id" :movie="m" @open="openPopup" />
       </div>
 
@@ -171,4 +171,7 @@ const predictedMovieTitle = computed(() => {
 
   return imageResults.value[0].title;
 });
+
+
+
 </script>

@@ -302,6 +302,18 @@ export const useTMDB = () => {
   const getMovieCollection = (collectionId: number) =>
     request<MovieCollectionResponse>(`/collection/${collectionId}`);
 
+  const discoverMoviesByKeyword = async (
+    keywordId: number,
+  ): Promise<TMDBResponse<Movie>> => {
+    return await $fetch("/api/tmdb/discover", {
+      query: { with_keywords: keywordId },
+    });
+  };
+// ==================================================================================
+  // tv
+  // ==================================================================================
+
+
   // ==================================================================================
   // actor
   // ==================================================================================
@@ -418,5 +430,6 @@ export const useTMDB = () => {
     getPersonExternalIds,
     getTvAggregateCredits,
     searchActorsEN,
+    discoverMoviesByKeyword,
   };
 };
