@@ -3,8 +3,12 @@ import { db } from '../../db'
 export default defineEventHandler(async (event) => {
   const { email, otp } = await readBody(event)
 
+  if (!email || !otp) {
+    throw createError({ statusCode: 400, statusMessage: 'Missing data' })
+  }
+
   const [rows]: any = await db.query(
-    'SELECT id, reset_expires FROM user WHERE email = ? AND reset_otp = ?',
+    'SELECT reset_expires FROM user WHERE email = ? AND reset_otp = ?',
     [email, otp]
   )
 

@@ -60,9 +60,12 @@
 </template>
 
 <script setup>
-definePageMeta({ layout: "login" });
+definePageMeta({
+  layout: "guest"
+});
 
-// ❌ ไม่ต้อง import ref / computed ใน Nuxt 3
+
+//
 
 const otp = ref(["", "", "", "", "", ""]); // 6 ช่อง
 const otpCode = computed(() => otp.value.join(""));

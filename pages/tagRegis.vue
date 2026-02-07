@@ -70,7 +70,11 @@
 </template>
 
 <script setup lang="ts">
-definePageMeta({ layout: "login" });
+definePageMeta({
+  layout: "guest"
+});
+
+
 import { ref } from "vue";
 
 /* ---------- ROUTE ---------- */
@@ -108,30 +112,31 @@ const isDisabled = (tagId: number) =>
   selectedTags.value.length === 3 && !selectedTags.value.includes(tagId);
 
 const submitTags = async () => {
-  errorMsg.value = "";
+  errorMsg.value = ""
 
   if (selectedTags.value.length !== 3) {
-    errorMsg.value = "Please select exactly 3 tags";
-    return;
+    errorMsg.value = "Please select exactly 3 tags"
+    return
   }
 
   try {
-    const res = await $fetch("/api/user/tag", {
+    const res = await $fetch("/api/complete", {
       method: "POST",
       body: {
         userId,
         tags: selectedTags.value,
       },
-    });
+    })
 
     if (res?.ok) {
-      navigateTo("/logInscreen");
+      navigateTo("/logInscreen")
     } else {
-      errorMsg.value = res?.message || "Something went wrong";
+      errorMsg.value = res?.message || "Something went wrong"
     }
   } catch (err) {
-    console.error(err);
-    errorMsg.value = "Server error";
+    console.error(err)
+    errorMsg.value = "Server error"
   }
-};
+}
+
 </script>

@@ -4,8 +4,11 @@ import { db } from '../../db'
 export default defineEventHandler(async (event) => {
   const { email, password } = await readBody(event)
 
-  if (!password) {
-    throw createError({ statusCode: 400, statusMessage: 'Password required' })
+  if (!email || !password) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Email and password required'
+    })
   }
 
   const hash = await bcrypt.hash(password, 10)

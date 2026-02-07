@@ -79,7 +79,10 @@
 </template>
 
 <script setup>
-definePageMeta({ layout: "login" });
+definePageMeta({
+  layout: "guest"
+});
+
 import { ref } from "vue";
 const email = ref("");
 const loading = ref(false);

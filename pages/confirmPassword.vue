@@ -130,7 +130,10 @@
 
 
 <script setup>
-definePageMeta({ layout: "login" });
+definePageMeta({
+  layout: "guest"
+});
+
 import { ref } from 'vue';
 const password = ref('')
 const confirm = ref('')
