@@ -7,7 +7,7 @@
     "dev": "concurrently \"cd image-search && python -m uvicorn main:app --reload --port 8000\" \"nuxt dev -p 3000\"",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": ""
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.1.0",
@@ -45,6 +45,9 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/chjnuw/projectM.git"
+  },
+  "engines": {
+    "node": ">=20.19.0 <21"
   },
   "keywords": [],
   "author": "",
