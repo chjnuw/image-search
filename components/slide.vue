@@ -332,8 +332,6 @@ onUnmounted(() => {
   window.removeEventListener("keydown", handleEsc);
 });
 
-import PopupM from "~/components/PopupM.vue";
-
 const showPopup = ref(false);
 
 function openPopup(id) {
