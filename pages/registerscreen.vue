@@ -482,35 +482,40 @@ const togglePassword = () => {
 // --------------------
 const loading = ref(false);
 const errorMsg = ref("");
-
 const gototag = async () => {
-  if (loading.value) return;
+  
+  if (loading.value) return
 
-  if (!validateForm()) {
-    return;
-  }
+  if (!validateForm()) return
 
-  loading.value = true;
+  loading.value = true
 
   try {
     const res = await $fetch("/api/register", {
       method: "POST",
       body: form.value,
-    });
-    console.log("REGISTER RES:", res);
+    })
 
-    if (res?.ok && res.userId !== undefined) {
-      navigateTo(`/verify-email?email=${form.value.email}`);
-      return;
+    if (!res.ok) {
+      // 👇 map error กลับไปที่ field
+      if (res.field && errors.value[res.field] !== undefined) {
+        errors.value[res.field] = res.message
+      } else {
+        alert(res.message || "Register failed")
+      }
+      return
     }
-    alert(res.message || "Register failed");
+
+    if (res.ok && res.userId !== undefined) {
+      navigateTo(`/verify-email?email=${form.value.email}`)
+    }
   } catch (err) {
-    console.error(err);
-    alert("API error");
+    console.error(err)
+    alert("API error")
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 const gotoLogin = () => {
   navigateTo("/logInscreen");
 };
