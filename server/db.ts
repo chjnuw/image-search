@@ -15,5 +15,7 @@ export const db = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10,
 })
+console.log('DB HOST:', process.env.DB_HOST)
+console.log('DB PORT:', process.env.DB_PORT)
 
 
