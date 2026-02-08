@@ -1,4 +1,6 @@
 fastapi
 uvicorn
-faiss-cpu
 numpy
+faiss-cpu
+torch
+git+https://github.com/openai/CLIP.git
