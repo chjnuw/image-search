@@ -9,7 +9,7 @@ export const db = mysql.createPool({
   port: Number(process.env.DB_PORT || 3306),
 
   ssl: {
-  rejectUnauthorized: false
+  ca: process.env.DB_SSL_CA
 },
 
   waitForConnections: true,
