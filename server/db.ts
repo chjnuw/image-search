@@ -1,5 +1,6 @@
 // server/utils/db.ts
 import mysql from "mysql2/promise";
+import fs from 'fs'
 
 export const db = mysql.createPool({
   host: process.env.DB_HOST,
@@ -9,7 +10,7 @@ export const db = mysql.createPool({
   port: Number(process.env.DB_PORT || 3306),
 
   ssl: {
-    rejectUnauthorized: false,
+    ca: fs.readFileSync('./ca.pem'),
   },
 
   waitForConnections: true,
