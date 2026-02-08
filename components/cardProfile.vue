@@ -133,7 +133,7 @@
              bg-[#90CB38]
              rounded-2xl
              text-white font-medium text-base sm:text-lg
-             hover:bg-[#7fbb32]"
+             hover:bg-[#7fbb32] cursor-pointer"
     >
       {{ isEditing ? "ยืนยัน" : "แก้ไข" }}
     </button>
