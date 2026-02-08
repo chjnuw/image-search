@@ -1,5 +1,5 @@
 // server/utils/db.ts
-import mysql from 'mysql2/promise'
+import mysql from "mysql2/promise";
 
 export const db = mysql.createPool({
   host: process.env.DB_HOST,
@@ -9,13 +9,14 @@ export const db = mysql.createPool({
   port: Number(process.env.DB_PORT || 3306),
 
   ssl: {
-  ca: process.env.DB_SSL_CA
-},
+    ca: process.env.DB_SSL_CA,
+  },
 
   waitForConnections: true,
-  connectionLimit: 10,
-})
-console.log('DB HOST:', process.env.DB_HOST)
-console.log('DB PORT:', process.env.DB_PORT)
+  connectionLimit: 3,
+  queueLimit: 0,
 
-
+  connectTimeout: 20000,
+});
+console.log("DB HOST:", process.env.DB_HOST);
+console.log("DB PORT:", process.env.DB_PORT);
