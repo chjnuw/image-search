@@ -5,7 +5,6 @@
     </section>
 
     <section class="my-20 max-w-[80%] mx-auto">
-
       <div class="snap-start mb-10" v-if="isLoggedIn">
         <h2 class="font-bold text-2xl md:text-3xl whitespace-nowrap b">
           แนะนำภาพยนตร์ตามรสนิยมของผู้ใช้งาน
@@ -30,14 +29,26 @@
             # {{ tag.name }}
           </span>
         </div>
-        <Recomment v-if="userTags.length" @open="openPopup" />
+        <Recomment v-if="isLoggedIn && userTags.length" @open="openPopup" />
+
+        <!-- login แต่ยังไม่มี tag -->
+        <div
+          v-else-if="isLoggedIn && !userTags.length"
+          class="justify-center items-center flex flex-col p-6 gap-4"
+        >
+          <p class="text-sm text-gray-400 px-4">
+            คุณยังไม่ได้เลือกแนวหนังที่คุณชอบ
+          </p>
+        </div>
+
+        <!-- ยังไม่ login -->
         <div v-else class="justify-center items-center flex flex-col p-6 gap-4">
           <p class="text-sm text-gray-400 px-4">
             เข้าสู่ระบบเพื่อเลือกแนวหนังที่คุณชอบ
           </p>
           <button
             @click="goToLogin"
-            class="px-8 py-3 bg-[#90CB38] text-white text-shadow-4xl rounded-xl font-medium cursor-pointer hover:bg-[#6da11f]"
+            class="px-8 py-3 bg-[#90CB38] text-white rounded-xl"
           >
             เข้าสู่ระบบ
           </button>
@@ -111,8 +122,16 @@ const userTags = ref<{ id: number; name: string }[]>([]);
 
 onMounted(async () => {
   try {
+    const me = await $fetch("/api/me");
+    isLoggedIn.value = true;
+    userGender.value = Number(me.gender);
+
     userTags.value = await $fetch("/api/user/tags");
-  } catch {
+
+    moviesMale.value = await $fetch("/api/recommend/male");
+    moviesFemale.value = await $fetch("/api/recommend/female");
+  } catch (e) {
+    isLoggedIn.value = false;
     userTags.value = [];
   }
 });
@@ -120,19 +139,7 @@ onMounted(async () => {
 const router = useRouter();
 const isLoggedIn = ref(false);
 const userGender = ref<number | null>(null);
-onMounted(async () => {
-  try {
-    const me = await $fetch("/api/me");
-    isLoggedIn.value = true;
-    userGender.value = me.gender;
 
-    // โหลด tag ต่อเมื่อ login แล้ว
-    userTags.value = await $fetch("/api/user/tags");
-  } catch {
-    isLoggedIn.value = false;
-    userTags.value = [];
-  }
-});
 const goToLogin = () => {
   router.push("/logInscreen");
 };
@@ -151,11 +158,6 @@ const emit = defineEmits<{
 
 const moviesMale = ref([]);
 const moviesFemale = ref([]);
-
-onMounted(async () => {
-  moviesMale.value = await $fetch("/api/recommend/male");
-  moviesFemale.value = await $fetch("/api/recommend/female");
-});
 
 const tastePieRef = ref<any>(null);
 

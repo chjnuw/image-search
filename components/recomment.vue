@@ -2,22 +2,30 @@
   <div class="px-2 sm:px-4 mx-auto">
     <div class="gap-2 py-4 px-2 flex overflow-x-auto custom-scrollbar">
       <div
-        v-for="movie in movies"
+        v-for="(movie, index) in movies"
         :key="movie.id"
-        class="transition-transform duration-300 cursor-pointer"
-         @click="$emit('open', movie.id)"
+        class="relative transition-transform duration-300 cursor-pointer"
+        @click="$emit('open', movie.id)"
       >
+        <!-- Bar -->
+        <div
+          class="absolute -left-1 -bottom-2 text-[72px] leading-none font-extrabold text-white/10 select-none pointer-events-none"
+        >
+          {{ index + 1 }}
+        </div>
+
         <CardM
           :movie="movie"
           :class="[
-            'aspect-[2/3] object-cover rounded hover:scale-105 overflow-hidden flex-shrink-0 transition-transform',
+            'relative z-10 aspect-[2/3] rounded-xl overflow-hidden flex-shrink-0',
+            'transition-all duration-300',
+            'shadow-md hover:shadow-2xl hover:-translate-y-1',
             cardClass,
           ]"
         />
       </div>
     </div>
   </div>
-  
 </template>
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue";
@@ -40,16 +48,18 @@ console.log("recommend called");
 const recommend = async () => {
   isLoadingDetail.value = true;
   try {
-    const res = await $fetch<any[]>("/api/recommend/movies", {
+    const res = await $fetch<any>("/api/recommend/movies", {
       method: "POST",
       credentials: "include",
     });
-    
-console.log("recommend res:", res);
-    movies.value = res || [];
+
+    console.log("recommend res:", res);
+
+    movies.value = Array.isArray(res) ? res : (res.movies ?? res.results ?? []);
   } catch (err) {
     console.error("Failed to load recommendations", err);
     movies.value = [];
+  } finally {
     isLoadingDetail.value = false;
   }
 };

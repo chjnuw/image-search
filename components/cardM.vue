@@ -10,7 +10,7 @@
       :src="posterSrc"
       @error="onError"
       loading="lazy"
-      class="aspect-[2/3] object-cover w-full h-full rounded"
+      class="aspect-[2/3] object-cover w-full h-full rounded-xl"
       @click="emit('open', props.movie.id)"
     />
 

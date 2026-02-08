@@ -11,6 +11,7 @@ export default defineEventHandler(async (event) => {
     FROM user_tags ut
     JOIN tag t ON t.id = ut.tag_id
     WHERE ut.user_id = ?
+     ORDER BY ut.created_at ASC
     `,
     [userId]
   );

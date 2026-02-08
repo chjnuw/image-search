@@ -9,11 +9,18 @@
           :key="movie.id"
           :movie="movie"
           @click="$emit('open', movie.id)"
-          class="aspect-[2/3] w-34 sm:w-40 object-cover rounded hover:scale-105 overflow-hidden flex-shrink-0"
+          class="aspect-[2/3] w-34 sm:w-40 object-cover hover:scale-105 overflow-hidden flex-shrink-0"
+          :class="[
+            'relative z-10 rounded-xl',
+            'transition-all duration-300',
+            'shadow-md hover:shadow-2xl hover:-translate-y-1',
+            cardClass,
+          ]"
         />
       </div>
       <div class="flex justify-center items-center ml-4 w-32 flex-shrink-0">
-        <button @click="goTocategoryPopular"
+        <button
+          @click="goTocategoryPopular"
           class="hover:bg-gray-600 p-4 rounded-full flex flex-col items-center text-green-500 cursor-pointer"
         >
           <h1 class="text-center text-sm sm:text-base">
