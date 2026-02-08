@@ -30,17 +30,25 @@
         </span>
       </div>
 
-      <div class="grid gap-4 px-4 py-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-        <CardM v-for="m in movies" :key="m.id" :movie="m" @open="openPopup" />
+      <div
+        class="grid gap-4 px-2 sm:px-4 py-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
+      >
+        <CardM
+          v-for="m in movies"
+          :key="m.id"
+          :movie="m"
+          @open="openPopup"
+          class="hover:scale-[1.03] transition-transform duration-300"
+        />
       </div>
 
       <div class="flex justify-center mt-6">
         <button
           v-if="hasMore && !loading && !isImageSearch"
           @click="loadMore"
-          class="px-6 py-3 bg-[#A0E13E] rounded-lg font-bold w-full"
+          class="m-4 px-6 py-3 bg-gradient-to-r from-[#A0E13E] to-lime-400 text-black font-extrabold rounded-xl hover:scale-105 transition-transform w-full cursor-pointer"
         >
-          ดูเพิ่มเติม
+          โหลดเพิ่ม
         </button>
 
         <p v-if="loading" class="text-center text-gray-400 mt-4">
@@ -134,13 +142,15 @@ async function loadMore() {
 
 // ✅ เมื่อเปลี่ยนคำค้น
 watch(
-  () => route.query.image,
-  async (img) => {
-    if (img === "1") {
-      console.log("IMAGE SEARCH MODE");
-      movies.value = imageResults.value;
-      hasMore.value = false;
-    }
+  () => route.query.q,
+  async (q) => {
+    if (!q || isImageSearch.value) return;
+
+    movies.value = [];
+    page.value = 1;
+    hasMore.value = true;
+
+    await load();
   },
   { immediate: true },
 );
@@ -171,7 +181,4 @@ const predictedMovieTitle = computed(() => {
 
   return imageResults.value[0].title;
 });
-
-
-
 </script>
